@@ -1,0 +1,37 @@
+﻿No (ลำดับ),Date-time (วันเวลา),Participant ID (รหัสผู้ทดสอบ),Device / browser (อุปกรณ์/เบราว์เซอร์),Flash used Y/N (ใช้แฟลช),App BPM (ค่าจากแอป),Reference BPM (ค่าจากเครื่องอ้างอิง),Error = App - Ref (ผลต่าง),Absolute error |App - Ref| (ผลต่างสัมบูรณ์),Signal quality (คุณภาพสัญญาณ),Notes (หมายเหตุ)
+1,,,,,,,"=IF(AND(ISNUMBER(F2),ISNUMBER(G2)),F2-G2,"""")","=IF(H2="""","""",ABS(H2))",,
+2,,,,,,,"=IF(AND(ISNUMBER(F3),ISNUMBER(G3)),F3-G3,"""")","=IF(H3="""","""",ABS(H3))",,
+3,,,,,,,"=IF(AND(ISNUMBER(F4),ISNUMBER(G4)),F4-G4,"""")","=IF(H4="""","""",ABS(H4))",,
+4,,,,,,,"=IF(AND(ISNUMBER(F5),ISNUMBER(G5)),F5-G5,"""")","=IF(H5="""","""",ABS(H5))",,
+5,,,,,,,"=IF(AND(ISNUMBER(F6),ISNUMBER(G6)),F6-G6,"""")","=IF(H6="""","""",ABS(H6))",,
+6,,,,,,,"=IF(AND(ISNUMBER(F7),ISNUMBER(G7)),F7-G7,"""")","=IF(H7="""","""",ABS(H7))",,
+7,,,,,,,"=IF(AND(ISNUMBER(F8),ISNUMBER(G8)),F8-G8,"""")","=IF(H8="""","""",ABS(H8))",,
+8,,,,,,,"=IF(AND(ISNUMBER(F9),ISNUMBER(G9)),F9-G9,"""")","=IF(H9="""","""",ABS(H9))",,
+9,,,,,,,"=IF(AND(ISNUMBER(F10),ISNUMBER(G10)),F10-G10,"""")","=IF(H10="""","""",ABS(H10))",,
+10,,,,,,,"=IF(AND(ISNUMBER(F11),ISNUMBER(G11)),F11-G11,"""")","=IF(H11="""","""",ABS(H11))",,
+11,,,,,,,"=IF(AND(ISNUMBER(F12),ISNUMBER(G12)),F12-G12,"""")","=IF(H12="""","""",ABS(H12))",,
+12,,,,,,,"=IF(AND(ISNUMBER(F13),ISNUMBER(G13)),F13-G13,"""")","=IF(H13="""","""",ABS(H13))",,
+13,,,,,,,"=IF(AND(ISNUMBER(F14),ISNUMBER(G14)),F14-G14,"""")","=IF(H14="""","""",ABS(H14))",,
+14,,,,,,,"=IF(AND(ISNUMBER(F15),ISNUMBER(G15)),F15-G15,"""")","=IF(H15="""","""",ABS(H15))",,
+15,,,,,,,"=IF(AND(ISNUMBER(F16),ISNUMBER(G16)),F16-G16,"""")","=IF(H16="""","""",ABS(H16))",,
+16,,,,,,,"=IF(AND(ISNUMBER(F17),ISNUMBER(G17)),F17-G17,"""")","=IF(H17="""","""",ABS(H17))",,
+17,,,,,,,"=IF(AND(ISNUMBER(F18),ISNUMBER(G18)),F18-G18,"""")","=IF(H18="""","""",ABS(H18))",,
+18,,,,,,,"=IF(AND(ISNUMBER(F19),ISNUMBER(G19)),F19-G19,"""")","=IF(H19="""","""",ABS(H19))",,
+19,,,,,,,"=IF(AND(ISNUMBER(F20),ISNUMBER(G20)),F20-G20,"""")","=IF(H20="""","""",ABS(H20))",,
+20,,,,,,,"=IF(AND(ISNUMBER(F21),ISNUMBER(G21)),F21-G21,"""")","=IF(H21="""","""",ABS(H21))",,
+21,,,,,,,"=IF(AND(ISNUMBER(F22),ISNUMBER(G22)),F22-G22,"""")","=IF(H22="""","""",ABS(H22))",,
+22,,,,,,,"=IF(AND(ISNUMBER(F23),ISNUMBER(G23)),F23-G23,"""")","=IF(H23="""","""",ABS(H23))",,
+23,,,,,,,"=IF(AND(ISNUMBER(F24),ISNUMBER(G24)),F24-G24,"""")","=IF(H24="""","""",ABS(H24))",,
+24,,,,,,,"=IF(AND(ISNUMBER(F25),ISNUMBER(G25)),F25-G25,"""")","=IF(H25="""","""",ABS(H25))",,
+25,,,,,,,"=IF(AND(ISNUMBER(F26),ISNUMBER(G26)),F26-G26,"""")","=IF(H26="""","""",ABS(H26))",,
+26,,,,,,,"=IF(AND(ISNUMBER(F27),ISNUMBER(G27)),F27-G27,"""")","=IF(H27="""","""",ABS(H27))",,
+27,,,,,,,"=IF(AND(ISNUMBER(F28),ISNUMBER(G28)),F28-G28,"""")","=IF(H28="""","""",ABS(H28))",,
+28,,,,,,,"=IF(AND(ISNUMBER(F29),ISNUMBER(G29)),F29-G29,"""")","=IF(H29="""","""",ABS(H29))",,
+29,,,,,,,"=IF(AND(ISNUMBER(F30),ISNUMBER(G30)),F30-G30,"""")","=IF(H30="""","""",ABS(H30))",,
+30,,,,,,,"=IF(AND(ISNUMBER(F31),ISNUMBER(G31)),F31-G31,"""")","=IF(H31="""","""",ABS(H31))",,
+
+N paired (จำนวนคู่ที่มีข้อมูลครบ),,,,,,,,=COUNT(I2:I31)
+MAE = mean of absolute error (BPM),,,,,,,,"=IFERROR(AVERAGE(I2:I31),"""")"
+Mean bias = mean of (App - Ref) (BPM),,,,,,,,"=IFERROR(AVERAGE(H2:H31),"""")"
+Max absolute error (BPM),,,,,,,,"=IF(COUNT(I2:I31)=0,"""",MAX(I2:I31))"
+Share within ±5 BPM,,,,,,,,"=IFERROR(COUNTIF(I2:I31,""<=5"")/COUNT(I2:I31),"""")"

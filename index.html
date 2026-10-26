@@ -1,0 +1,2364 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>สุขใจ เฮลท์ · Sookjai Health</title>
+<meta name="description" content="ต้นแบบผู้ช่วยดูแลสุขภาพเบื้องต้น: วัดชีพจรด้วยกล้อง (ทดลอง) เช็กอาการเบื้องต้นตามกฎ และข้อมูลฉุกเฉิน 1669">
+<meta name="theme-color" content="#7A4A24">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='60' rx='30' ry='34' fill='%23C98A4B' stroke='%233B2416' stroke-width='5'/%3E%3Cpath d='M14 46Q50 6 86 46Q50 58 14 46Z' fill='%237A4A24' stroke='%233B2416' stroke-width='5'/%3E%3Cpath d='M50 20l6-14' stroke='%233B2416' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/* ============ Design tokens ============ */
+/* Palette taken from the น้องสุขใจ character sheet: cream paper, chipmunk browns,
+   cream belly, orange ears, peach cheeks, acorn and leaf accents. */
+:root{
+  --bg:#FBF4E6; --surface:#FFFDF8; --surface-2:#F6EAD3; --line:#E4CDA8;
+  --ink:#3B2416; --ink-soft:#674731;
+  --primary:#7A4A24; --primary-dark:#5A3418; --primary-soft:#F4E4C8;
+  --fur:#A86B3C; --fur-dark:#6B4226; --cream:#F6E3C3; --ear:#E8894A;
+  --leaf:#4E6B1F; --leaf-soft:#E7EFD5;
+  --heart:#F4A08A; --heart-dark:#A9472B; --heart-soft:#FBE3D6;
+  --sos:#B3261E; --sos-dark:#8C1D18;
+  --lv0:#3D5A12; --lv0-bg:#E7EFD5;
+  --lv1:#5A4200; --lv1-bg:#FFF1BF;
+  --lv2:#873000; --lv2-bg:#FFE0C4;
+  --lv3:#FFFFFF; --lv3-bg:#B3261E;
+  --demo:#55399A; --demo-bg:#EFE9FB;
+  --focus:#0B57D0;
+  --radius:24px; --radius-sm:16px;
+  --shadow:0 2px 0 rgba(90,52,24,.08), 0 12px 28px rgba(90,52,24,.10);
+  --header-h:76px; --tab-h:78px;
+  --font:"Sarabun","Noto Sans Thai","Noto Sans Thai UI","Leelawadee UI","Leelawadee","Thonburi","Tahoma",system-ui,sans-serif;
+}
+/* Base text 20px; the ก+ button scales everything */
+html{font-size:125%;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html[data-size="1"]{font-size:140%}
+html[data-size="2"]{font-size:156%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font);line-height:1.65;color:var(--ink);background-color:var(--bg);
+  background-image:radial-gradient(#EAD8B8 1.2px, transparent 1.6px);background-size:24px 24px;
+  padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom))}
+.doodle{display:inline-block;width:1em;height:1em;vertical-align:-.1em}
+img,svg,video,canvas{max-width:100%}
+h1,h2,h3,h4{line-height:1.3;margin:0 0 .5em}
+h1{font-size:2rem}
+h2{font-size:1.6rem}
+h3{font-size:1.2rem}
+h4{font-size:1.05rem}
+p{margin:0 0 .8em}
+ul,ol{margin:0 0 .8em;padding-left:1.3em}
+li{margin:.2em 0}
+a{color:var(--primary-dark)}
+strong{font-weight:700}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px;border-radius:8px}
+[hidden]{display:none!important}
+
+.skip-link{position:absolute;left:12px;top:-100px;z-index:100;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:12px;font-weight:700}
+.skip-link:focus{top:12px}
+
+/* ============ Ribbon + header ============ */
+.proto-ribbon{background:var(--ink);color:#fff;text-align:center;font-size:.85rem;padding:.4rem 1rem;line-height:1.5}
+.proto-ribbon strong{color:#FFD9A8}
+.site-header{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:2px solid var(--line)}
+.header-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:.75rem;padding:.5rem 16px;min-height:var(--header-h)}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink);margin-right:auto;min-height:48px}
+.brand .mascot{width:52px;height:52px;flex:none}
+.brand-name{display:block;font-weight:800;font-size:1.15rem;line-height:1.1;color:var(--primary-dark)}
+.brand-sub{display:block;font-size:.75rem;color:var(--ink-soft);letter-spacing:.04em}
+.header-actions{display:flex;gap:.5rem;align-items:center}
+
+/* Tab bar: fixed bottom on phones, inline in header on desktop */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--surface);border-top:2px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -6px 20px rgba(27,39,51,.08)}
+.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:var(--tab-h);
+  text-decoration:none;color:var(--ink-soft);font-size:.8rem;font-weight:700;line-height:1.2;text-align:center;padding:.3rem .15rem;border-radius:0}
+.tabbar svg{width:28px;height:28px;flex:none}
+.tabbar a[aria-current="location"]{color:var(--primary-dark);background:var(--primary-soft);box-shadow:inset 0 4px 0 var(--primary)}
+.tabbar a.tab-sos{color:var(--sos)}
+.tabbar a.tab-sos[aria-current="location"]{color:var(--sos-dark);background:#FDE7E5;box-shadow:inset 0 4px 0 var(--sos)}
+@media (min-width:1000px){
+  body{padding-bottom:0}
+  .tabbar{position:static;display:flex;gap:.25rem;background:none;border:0;box-shadow:none;padding:0}
+  .tabbar a{flex-direction:row;gap:.4rem;min-height:52px;padding:.3rem .8rem;border-radius:14px;font-size:.85rem}
+  .tabbar svg{width:24px;height:24px}
+  .tabbar a[aria-current="location"]{box-shadow:inset 0 -4px 0 var(--primary)}
+  .tabbar a.tab-sos[aria-current="location"]{box-shadow:inset 0 -4px 0 var(--sos)}
+}
+
+/* ============ Buttons ============ */
+.btn{--b:var(--primary);display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:3rem;min-width:48px;
+  padding:.55rem 1.25rem;border-radius:16px;border:3px solid var(--b);background:var(--b);color:#fff;
+  font:inherit;font-weight:700;font-size:1rem;line-height:1.3;text-decoration:none;cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, background-color .12s ease}
+.btn:hover{box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn svg{width:1.2em;height:1.2em;flex:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:var(--surface);color:var(--primary-dark)}
+.btn-sos{--b:var(--sos)}
+.btn-sos-light{--b:#fff;color:var(--sos-dark);background:#fff}
+.btn-demo{--b:var(--demo);background:var(--surface);color:var(--demo)}
+.btn-ghost{--b:var(--line);background:var(--surface);color:var(--ink)}
+.btn-icon{padding:.4rem .7rem;font-size:1.05rem}
+.btn-lg{min-height:3.4rem;font-size:1.1rem;padding:.65rem 1.5rem}
+.btn-row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.header-actions .btn{min-height:52px;padding:.35rem .8rem}
+@media (max-width:420px){ .brand-sub{display:none} .brand .mascot{width:44px;height:44px} .brand-name{font-size:1rem} }
+@media (max-width:370px){
+  .header-inner{gap:.4rem}
+  .header-actions .btn{padding:.3rem .55rem}
+  .header-actions .btn-sos svg{display:none}
+  .tabbar a{font-size:.7rem}
+}
+@media (max-width:440px){
+  html[data-size="1"] .brand > span:last-child,html[data-size="2"] .brand > span:last-child{display:none}
+  html[data-size="1"] .tabbar a,html[data-size="2"] .tabbar a{font-size:.62rem}
+}
+
+/* ============ Layout ============ */
+main{display:block}
+.section{max-width:1120px;margin:0 auto;padding:2.2rem 16px;scroll-margin-top:calc(var(--header-h) + 8px)}
+.section:focus{outline:none}
+#sym-result,#ppg-result{scroll-margin-top:calc(var(--header-h) + 16px);scroll-margin-bottom:calc(var(--tab-h) + 16px)}
+#ppg-result:focus,#sym-result-title:focus{outline:none}
+.section-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem}
+.section-head .num{flex:none;width:2.6rem;height:2.6rem;border-radius:50% 50% 46% 46%;background:var(--fur);color:#fff;display:grid;place-items:center;font-weight:800;
+  box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--fur-dark)}
+.section-head h2 .doodle{color:var(--leaf);margin-left:.3rem}
+.section-head h2{margin:0}
+.lead{font-size:1.08rem;color:var(--ink-soft);max-width:46rem}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow)}
+.card + .card{margin-top:1rem}
+.grid-2{display:grid;gap:1rem;grid-template-columns:1fr}
+.grid-3{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:760px){ .grid-2{grid-template-columns:1fr 1fr} .grid-3{grid-template-columns:repeat(3,1fr)} }
+/* Let wide tables scroll inside their wrapper instead of stretching the grid column */
+.grid-2 > *,.grid-3 > *,.ppg-layout > *,.sc-grid > *,.hero > *{min-width:0}
+.divider{height:2px;background:var(--line);border:0;margin:1.5rem 0}
+.muted{color:var(--ink-soft)}
+.small{font-size:.88rem}
+
+.callout{border-radius:var(--radius-sm);padding:1rem 1.1rem;border:2px solid;display:flex;gap:.8rem;align-items:flex-start}
+.callout .ico{font-size:1.4rem;line-height:1.3;flex:none}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+.callout-warn{background:#FFF4D6;border-color:#E2B33C;color:#3D2E00}
+.callout-info{background:var(--primary-soft);border-color:#D9B98A;color:var(--ink)}
+.callout-danger{background:#FDE7E5;border-color:#E39A94;color:#5C0F0B}
+.callout-demo{background:var(--demo-bg);border-color:#B9A6E6;color:#2E1D5C}
+
+.badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:800;padding:.2rem .7rem;border-radius:999px;border:2px solid currentColor;line-height:1.4}
+.badge-real{color:var(--primary-dark);background:var(--primary-soft)}
+.badge-demo{color:#fff;background:var(--demo);border-color:var(--demo)}
+.badge-warn{color:var(--lv1);background:var(--lv1-bg)}
+.badge-sos{color:#fff;background:var(--sos);border-color:var(--sos)}
+
+/* ============ Mascot: น้องสุขใจ the chipmunk (see Character_Design.jpg) ============
+   data-mood: happy | excited | surprised | curious | concern
+   data-pose: idle | wave | acorn        data-talking: true | false */
+.mascot{display:inline-block;line-height:0}
+.mascot-svg{width:100%;height:100%;overflow:visible}
+.mascot-svg.is-head{overflow:hidden;border-radius:50%;background:var(--primary-soft)}
+.mascot .sq-eyes-happy,.mascot .sq-brow-worry,.mascot .sq-brow-curious,.mascot .sq-m-grin,.mascot .sq-m-talk,
+.mascot .sq-m-o,.mascot .sq-m-curious,.mascot .sq-arm-wave,.mascot .sq-acorn{display:none}
+.mascot[data-pose="wave"] .sq-arm-rest-r{display:none}
+.mascot[data-pose="wave"] .sq-arm-wave{display:inline}
+.mascot[data-pose="acorn"] .sq-arm-rest-l,.mascot[data-pose="acorn"] .sq-arm-rest-r{display:none}
+.mascot[data-pose="acorn"] .sq-acorn{display:inline}
+.mascot[data-mood="excited"] .sq-eyes-open,.mascot[data-mood="excited"] .sq-m-smile{display:none}
+.mascot[data-mood="excited"] .sq-eyes-happy,.mascot[data-mood="excited"] .sq-m-grin{display:inline}
+.mascot[data-mood="surprised"] .sq-m-smile,.mascot[data-mood="concern"] .sq-m-smile{display:none}
+.mascot[data-mood="surprised"] .sq-m-o,.mascot[data-mood="concern"] .sq-m-o,.mascot[data-mood="concern"] .sq-brow-worry{display:inline}
+.mascot[data-mood="surprised"] .sq-eyes-open,.mascot[data-mood="concern"] .sq-eyes-open{transform:scale(1.14)}
+.mascot[data-mood="curious"] .sq-m-smile{display:none}
+.mascot[data-mood="curious"] .sq-m-curious,.mascot[data-mood="curious"] .sq-brow-curious{display:inline}
+.mascot[data-mood="curious"] .sq-head{transform:rotate(-9deg)}
+.mascot[data-talking="true"] .sq-mouth > *{display:none}
+.mascot[data-talking="true"] .sq-mouth > .sq-m-talk{display:inline;animation:sqTalk .19s ease-in-out infinite alternate}
+.sq-all{animation:sqBob 3.4s ease-in-out infinite}
+.sq-body{animation:sqBreathe 3.4s ease-in-out infinite;transform-box:view-box;transform-origin:120px 246px}
+.sq-tail{animation:sqTail 2.8s ease-in-out infinite;transform-box:view-box;transform-origin:84px 230px}
+.sq-head{transition:transform .35s ease;transform-box:view-box;transform-origin:120px 146px}
+.sq-eyes-open{transition:transform .25s ease;transform-box:fill-box;transform-origin:center}
+.sq-eye{animation:sqBlink 5.2s infinite;transform-box:fill-box;transform-origin:center}
+.sq-ear-l{animation:sqEar 7s infinite;transform-box:view-box;transform-origin:88px 60px}
+.sq-arm-wave{animation:sqWave .9s ease-in-out infinite;transform-box:view-box;transform-origin:159px 161px}
+.sq-m-talk{transform-box:fill-box;transform-origin:center}
+.sq-shadow{transform-box:fill-box;transform-origin:center}
+.mascot[data-mood="excited"] .sq-all{animation:sqHop .55s ease-in-out infinite}
+.mascot[data-mood="excited"] .sq-shadow{animation:sqShadow .55s ease-in-out infinite}
+.mascot[data-mood="surprised"] .sq-all{animation:sqJump .55s ease-out 1}
+.mascot.walk-in{animation:sqEnter 1.3s ease-out}
+.mascot.walk-in .sq-all{animation:sqWalk .43s ease-in-out 3}
+@keyframes sqBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes sqBreathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.015,1.03)}}
+@keyframes sqTail{0%,100%{transform:rotate(0)}50%{transform:rotate(-7deg)}}
+@keyframes sqBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes sqEar{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(-12deg)}94%{transform:rotate(5deg)}}
+@keyframes sqWave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(18deg)}}
+@keyframes sqTalk{from{transform:scaleY(.3)}to{transform:scaleY(1.15)}}
+@keyframes sqHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes sqShadow{0%,100%{transform:scaleX(1);opacity:.15}50%{transform:scaleX(.72);opacity:.07}}
+@keyframes sqJump{0%{transform:translateY(0)}30%{transform:translateY(-16px) scale(1.04)}100%{transform:translateY(0)}}
+@keyframes sqEnter{from{transform:translateX(110%)}to{transform:translateX(0)}}
+@keyframes sqWalk{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-7px) rotate(-3deg)}75%{transform:translateY(-7px) rotate(3deg)}}
+.mascot-btn{background:none;border:0;padding:0;cursor:pointer;border-radius:50%;line-height:0}
+.mascot-btn:hover .sq-head{transform:rotate(4deg)}
+
+/* ============ Chat with น้องสุขใจ ============ */
+.chat-fab{position:fixed;right:14px;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 14px);z-index:48;display:flex;align-items:center;gap:.4rem;
+  min-height:64px;padding:.25rem 1.1rem .25rem .3rem;border-radius:999px;border:3px solid var(--fur-dark);background:var(--surface);color:var(--primary-dark);
+  font:inherit;font-weight:800;font-size:.92rem;cursor:pointer;box-shadow:var(--shadow)}
+.chat-fab .mascot{width:56px;height:56px}
+.chat-fab:hover{transform:translateY(-2px)}
+@media (max-width:520px){ .chat-fab .fab-label{display:none} .chat-fab{padding:.25rem} }
+.chat{position:fixed;z-index:55;right:14px;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);width:min(420px,calc(100vw - 28px));
+  max-height:calc(100vh - var(--tab-h) - 30px);max-height:calc(100dvh - var(--tab-h) - 30px);display:flex;flex-direction:column;
+  background:var(--surface);border:3px solid var(--fur-dark);border-radius:28px;box-shadow:0 20px 50px rgba(59,36,22,.3);overflow:hidden}
+@media (min-width:1000px){ .chat-fab{bottom:20px} .chat{bottom:20px;max-height:calc(100dvh - 120px)} }
+.chat-head{flex:none;display:flex;align-items:center;gap:.4rem;padding:.5rem .6rem .5rem 1rem;background:var(--primary-soft);border-bottom:2px solid var(--line)}
+.chat-head h2{font-size:1.05rem;margin:0;flex:1;min-width:0;color:var(--primary-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-head h2:focus{outline:none}
+.chat-head .btn{min-height:48px;padding:.2rem .7rem;font-size:.85rem}
+.chat-stage{flex:none;display:flex;justify-content:center;align-items:flex-end;gap:.5rem;padding:.3rem 0 0;background:linear-gradient(var(--primary-soft),var(--surface));overflow:hidden}
+.chat-stage .mascot{width:124px;height:124px}
+@media (max-height:640px){ .chat-stage .mascot{width:84px;height:84px} }
+.chat-log{list-style:none;margin:0;padding:.7rem .8rem;overflow-y:auto;flex:1 1 auto;min-height:110px;display:flex;flex-direction:column;gap:.55rem}
+.msg{max-width:90%;padding:.55rem .9rem;border-radius:20px;line-height:1.55;font-size:.95rem;animation:msgIn .25s ease-out;margin:0}
+.msg.bot{align-self:flex-start;background:var(--primary-soft);border:2px solid var(--line);border-bottom-left-radius:6px}
+.msg.user{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:6px}
+.msg.bot.is-urgent{background:#FDE7E5;border-color:#E39A94;color:#5C0F0B}
+.msg .btn-row{margin-top:.45rem;gap:.4rem}
+.msg .btn{min-height:48px;font-size:.88rem;padding:.3rem .85rem}
+.msg.typing span{display:inline-block;width:.5rem;height:.5rem;margin:0 .12rem;border-radius:50%;background:var(--fur);animation:dot 1s infinite}
+.msg.typing span:nth-child(2){animation-delay:.15s}.msg.typing span:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.chat-quick{display:flex;gap:.4rem;overflow-x:auto;padding:.35rem .8rem .5rem;flex:none}
+.chat-quick button{flex:none;min-height:48px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font:inherit;font-size:.85rem;font-weight:700;
+  padding:.3rem .9rem;color:var(--primary-dark);cursor:pointer;white-space:nowrap}
+.chat-quick button:hover{border-color:var(--fur)}
+.chat-form{display:flex;gap:.4rem;padding:.55rem .8rem;border-top:2px solid var(--line);flex:none}
+.chat-form .input{flex:1;min-width:0;max-width:none;min-height:48px}
+.chat-form .btn{min-height:48px;padding:.3rem 1rem}
+.chat-note{font-size:.72rem;color:var(--ink-soft);padding:0 .9rem .55rem;margin:0;flex:none;line-height:1.4}
+
+/* ============ Hero ============ */
+.hero{display:grid;gap:1.5rem;align-items:center;grid-template-columns:1fr}
+@media (min-width:860px){ .hero{grid-template-columns:1.15fr .85fr} }
+.hero h1{color:var(--primary-dark)}
+.hero h1 small{display:block;font-size:.55em;color:var(--ink-soft);font-weight:600;margin-top:.3em}
+.hero-stage{display:flex;flex-direction:column;align-items:center;gap:.8rem;overflow-x:clip}
+.hero-stage .mascot{width:min(280px,66vw);height:min(300px,70vw)}
+.bubble{position:relative;background:var(--surface);border:3px solid var(--fur-dark);border-radius:26px;padding:1rem 1.2rem;max-width:26rem;font-size:1.05rem;box-shadow:var(--shadow);min-height:4.5rem}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-16px;width:26px;height:26px;background:var(--surface);border-right:3px solid var(--fur-dark);border-bottom:3px solid var(--fur-dark);transform:translateX(-50%) rotate(45deg)}
+.hero-title{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.hero-title .doodle{width:.8em;height:.8em}
+.bubble p{margin:0}
+.hero-stage .bubble{order:-1}
+.feature-cards{margin-top:1.5rem}
+.feature{display:flex;flex-direction:column;gap:.4rem;text-decoration:none;color:inherit;border:2px solid var(--line);border-radius:var(--radius);padding:1.1rem;background:var(--surface);min-height:48px;transition:border-color .15s, transform .15s}
+.feature:hover{border-color:var(--primary);transform:translateY(-2px)}
+.feature .f-ico{font-size:2rem;line-height:1}
+.feature strong{font-size:1.1rem;color:var(--primary-dark)}
+.feature span:last-child{color:var(--ink-soft);font-size:.92rem}
+.privacy-pill{display:inline-flex;gap:.4rem;align-items:center;background:var(--leaf-soft);color:#2F420F;border:2px dashed #A9BF7C;border-radius:999px;padding:.35rem .9rem;font-size:.9rem;font-weight:600;margin:.4rem 0 1rem}
+
+/* ============ PPG ============ */
+.ppg-layout{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:900px){ .ppg-layout{grid-template-columns:1.1fr .9fr} }
+.ppg-panel{position:relative}
+.ppg-panel.is-demo{border-color:var(--demo);background:repeating-linear-gradient(-45deg,#fff 0 18px,#FAF7FF 18px 36px)}
+.ppg-top{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.preview{position:relative;width:132px;height:132px;flex:none;border-radius:50%;overflow:hidden;background:#3B2416;border:6px solid var(--line);display:grid;place-items:center}
+.preview video{width:100%;height:100%;object-fit:cover;transform:scaleX(1)}
+.preview .pv-label{position:absolute;inset:auto 0 10px;text-align:center;color:#fff;font-size:.72rem;font-weight:700;text-shadow:0 1px 2px #000}
+.preview.finger-on{border-color:#5E8A1F}
+.preview.is-demo-glow{background:radial-gradient(circle at 50% 45%,#ff6b6b,#9b1c1c 70%)}
+.preview.is-demo-glow::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,#ffb3b3 0,transparent 60%);animation:pulseGlow .85s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{opacity:.25}40%{opacity:.75}}
+.bpm-box{flex:1 1 10rem;min-width:0}
+.bpm-num{font-size:3.6rem;font-weight:800;line-height:1;color:var(--heart-dark);font-variant-numeric:tabular-nums}
+.bpm-num.provisional{color:#8C6A55}
+.bpm-unit{font-size:1rem;color:var(--ink-soft);font-weight:700}
+.bpm-tag{display:block;font-size:.85rem;color:var(--ink-soft);min-height:1.4em}
+.status-box{margin-top:1rem;background:var(--surface-2);border-radius:var(--radius-sm);padding:.9rem 1rem;border:2px solid var(--line);font-size:1.05rem;font-weight:600;min-height:3.2rem}
+.status-box.is-error{background:#FDE7E5;border-color:#E39A94;color:#5C0F0B}
+.meta-row{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;margin-top:.8rem;font-size:.9rem;color:var(--ink-soft)}
+.meta-row b{color:var(--ink)}
+.quality{display:flex;align-items:center;gap:.6rem;margin-top:.8rem;font-weight:700}
+.q-bars{display:flex;gap:4px}
+.q-bars i{width:18px;height:26px;border-radius:5px;background:#EBDDC4;display:block}
+.q-bars[data-level="0"] i:nth-child(1){background:#C0392B}
+.q-bars[data-level="1"] i:nth-child(-n+2){background:#D68910}
+.q-bars[data-level="2"] i{background:#1E8449}
+.progress{height:16px;background:#EFE2CA;border-radius:999px;overflow:hidden;margin-top:.9rem}
+.progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),#C98A4B);border-radius:999px;transition:width .3s linear}
+.timer{font-size:.9rem;color:var(--ink-soft);margin-top:.3rem;min-height:1.5em}
+.wave-wrap{margin-top:.9rem;border:2px solid var(--line);border-radius:var(--radius-sm);background:#FFFDF8;overflow:hidden}
+.wave-wrap canvas{display:block;width:100%;height:120px}
+.ppg-actions{margin-top:1rem}
+.result-card{margin-top:1rem;border-radius:var(--radius);padding:1.2rem;border:3px solid var(--primary);background:var(--primary-soft)}
+.result-card.is-demo{border-color:var(--demo);background:var(--demo-bg)}
+.result-card.is-fail{border-color:#E39A94;background:#FDE7E5}
+.result-card .bpm-num{font-size:3rem}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:.35rem 0 .35rem 2.8rem;margin:.4rem 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:.3rem;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--heart-soft);color:var(--heart-dark);border:2px solid var(--heart-dark);font-weight:800;display:grid;place-items:center;font-size:.95rem}
+
+/* details / validation table */
+details.card > summary{cursor:pointer;font-weight:800;font-size:1.05rem;min-height:48px;display:flex;align-items:center;gap:.6rem;list-style:none}
+details.card > summary::-webkit-details-marker{display:none}
+details.card > summary::before{content:"▸";font-size:1.2rem;transition:transform .15s;color:var(--primary)}
+details.card[open] > summary::before{transform:rotate(90deg)}
+.field{display:flex;flex-direction:column;gap:.35rem;margin:.8rem 0}
+.field label{font-weight:700}
+.input,select.input,textarea.input{font:inherit;font-size:1rem;min-height:3rem;padding:.55rem .8rem;border:3px solid #C4A57E;border-radius:14px;background:#fff;color:var(--ink);width:100%;max-width:28rem}
+textarea.input{max-width:none;min-height:5.5rem;resize:vertical}
+.input:focus-visible{border-color:var(--focus)}
+.input[aria-invalid="true"]{border-color:var(--sos)}
+.field-error{color:var(--sos-dark);font-weight:700;font-size:.92rem;min-height:1.2em}
+.table-wrap{overflow-x:auto;margin-top:.8rem;border:2px solid var(--line);border-radius:var(--radius-sm)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;background:#fff}
+th,td{padding:.55rem .6rem;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{background:var(--surface-2);font-weight:800}
+tfoot td{font-weight:800;background:var(--primary-soft)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ============ Symptom checker ============ */
+fieldset{border:0;padding:0;margin:0 0 1.2rem;min-width:0}
+legend{font-weight:800;font-size:1.15rem;margin-bottom:.6rem;padding:0}
+.chip-grid{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,8rem),1fr))}
+@media (min-width:760px){ .chip-grid{grid-template-columns:repeat(auto-fill,minmax(12.5rem,1fr))} }
+.chip{position:relative;display:flex;align-items:center;gap:.55rem;min-height:3.3rem;padding:.5rem .7rem;border:3px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;font-weight:600;line-height:1.3;transition:border-color .12s, background-color .12s}
+.chip:hover{border-color:#C98A4B}
+.chip input{appearance:none;-webkit-appearance:none;flex:none;width:1.45rem;height:1.45rem;margin:0;border:3px solid #9C7B5C;border-radius:7px;background:#fff;display:grid;place-items:center;cursor:pointer}
+.chip input:checked{background:var(--primary);border-color:var(--primary)}
+.chip input:checked::after{content:"";width:.4rem;height:.75rem;border:solid #fff;border-width:0 .2rem .2rem 0;transform:translateY(-.08rem) rotate(45deg)}
+.chip:has(input:checked){border-color:var(--primary);background:var(--primary-soft)}
+.chip:has(input:focus-visible){outline:4px solid var(--focus);outline-offset:3px}
+.chip input:focus-visible{outline:none}
+.chip .c-ico{font-size:1.3rem;flex:none}
+.chip .c-tag{display:block;font-size:.7rem;font-weight:800;color:var(--sos);letter-spacing:.02em}
+.chip.is-urgent{border-color:#EBB4AE}
+.chip.is-urgent:has(input:checked){border-color:var(--sos);background:#FDE7E5}
+.chip.is-urgent input:checked{background:var(--sos);border-color:var(--sos)}
+.flag-list .chip{min-height:3rem;font-weight:600}
+.sc-grid{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:900px){ .sc-grid{grid-template-columns:1fr 1fr} }
+.match-note{margin-top:.4rem;font-weight:600;color:var(--primary-dark);min-height:1.4em}
+
+.level-banner{border-radius:var(--radius);padding:1.2rem 1.3rem;display:flex;gap:1rem;align-items:flex-start;border:3px solid}
+.level-banner .lv-ico{font-size:2.4rem;line-height:1;flex:none}
+.level-banner h3{margin:0 0 .3rem;font-size:1.35rem}
+.level-banner p{margin:0 0 .5rem}
+.level-banner > div,.callout > div{min-width:0;flex:1}
+@media (max-width:480px){
+  .card{padding:1rem}
+  .level-banner{flex-direction:column;gap:.4rem;padding:1rem}
+  .btn{max-width:100%;white-space:normal}
+}
+.lv-0{background:var(--lv0-bg);color:var(--lv0);border-color:#A9BF7C}
+.lv-1{background:var(--lv1-bg);color:var(--lv1);border-color:#E2B33C}
+.lv-2{background:var(--lv2-bg);color:var(--lv2);border-color:#E59A5E}
+.lv-3{background:var(--lv3-bg);color:var(--lv3);border-color:var(--sos-dark)}
+.lv-3 a:not(.btn){color:#fff}
+.sym-results{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:1rem}
+@media (min-width:760px){ .sym-results{grid-template-columns:1fr 1fr} }
+.sym-card{border:2px solid var(--line);border-radius:var(--radius);padding:1.1rem;background:#fff}
+.sym-card h4{display:flex;gap:.5rem;align-items:center;color:var(--primary-dark);font-size:1.15rem}
+.sym-card h5{font-size:.95rem;margin:.8rem 0 .2rem}
+.sym-card ul{font-size:.95rem}
+.h-care{color:var(--lv0)} .h-warn{color:var(--sos-dark)} .h-seek{color:var(--lv2)}
+.reasons{margin-top:1rem}
+
+/* ============ Guidance ============ */
+.sos-card{background:var(--sos);color:#fff;border-color:var(--sos-dark)}
+.sos-card h3{font-size:1.5rem}
+.sos-big{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin:.6rem 0 1rem}
+.sos-number{font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:.04em}
+.befast{display:grid;gap:.6rem;grid-template-columns:1fr;list-style:none;padding:0}
+@media (min-width:600px){ .befast{grid-template-columns:1fr 1fr} }
+.befast li{display:flex;gap:.8rem;align-items:center;border:2px solid var(--line);border-radius:16px;padding:.6rem .8rem;margin:0}
+.befast b{flex:none;width:2.6rem;height:2.6rem;border-radius:12px;background:var(--sos);color:#fff;display:grid;place-items:center;font-size:1.3rem}
+.hotlines{list-style:none;padding:0;display:grid;gap:.6rem}
+.hotlines li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.6rem;border:2px solid var(--line);border-radius:16px;padding:.6rem .9rem;margin:0}
+.hotlines .hn{font-size:1.5rem;font-weight:800;color:var(--sos-dark)}
+
+/* ============ How-to ============ */
+.status-table td,.status-table th{white-space:normal;vertical-align:top}
+.st{display:inline-block;font-weight:800;font-size:.8rem;padding:.15rem .55rem;border-radius:999px;white-space:nowrap}
+.st-real{background:var(--leaf-soft);color:#2F420F}
+.st-sim{background:var(--demo);color:#fff}
+.st-unval{background:var(--lv1-bg);color:var(--lv1)}
+.st-none{background:#EEE;color:#333}
+footer{background:var(--ink);color:#E9EEF2;margin-top:2rem}
+footer .inner{max-width:1120px;margin:0 auto;padding:1.6rem 16px 6rem;font-size:.9rem}
+footer a{color:#fff}
+
+/* ============ Floating bits ============ */
+.speak-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);z-index:50;
+  display:flex;align-items:center;gap:.8rem;background:var(--ink);color:#fff;border-radius:999px;padding:.4rem .5rem .4rem 1.1rem;box-shadow:var(--shadow);max-width:calc(100% - 24px);font-weight:700}
+.speak-bar .btn{min-height:48px;--b:#fff;background:#fff;color:var(--ink);padding:.3rem 1rem}
+.toast{position:fixed;left:50%;transform:translate(-50%,20px);top:calc(var(--header-h) + 12px);z-index:60;max-width:min(36rem,calc(100% - 24px));
+  background:var(--ink);color:#fff;border-radius:16px;padding:.8rem 1.1rem;box-shadow:var(--shadow);font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast[data-type="warn"]{background:#5A4200}
+.toast[data-type="error"]{background:var(--sos-dark)}
+@media (min-width:1000px){ .speak-bar{bottom:20px} }
+
+/* ============ Motion preferences ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .mascot[data-talking="true"] .sq-m-talk{transform:scaleY(.8)}
+  .mascot[data-mood="curious"] .sq-head{transform:rotate(-6deg)}
+}
+@media print{ .tabbar,.speak-bar,.toast,.header-actions,.ppg-actions,.chat,.chat-fab{display:none!important} body{padding:0} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-acorn" viewBox="0 0 40 40"><ellipse cx="20" cy="25" rx="11" ry="12" fill="#C98A4B" stroke="#3B2416" stroke-width="2.5"/><path d="M6 19Q20 4 34 19Q20 24 6 19Z" fill="#7A4A24" stroke="#3B2416" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 9l3-6" stroke="#3B2416" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 40 40"><path d="M6 34C4 18 16 6 34 5C35 22 24 34 6 34Z" fill="#7E9B3C" stroke="#3B2416" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 32C14 24 20 18 28 12" fill="none" stroke="#3B2416" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+<a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+<div class="proto-ribbon" role="note"><strong>ต้นแบบเพื่อการสาธิต (Prototype)</strong> · ไม่ใช่เครื่องมือแพทย์ ไม่ใช้แทนการวินิจฉัยของแพทย์ · ฉุกเฉินโทร 1669</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#home" aria-label="สุขใจ เฮลท์ หน้าแรก">
+      <span class="mascot" data-mascot="head" aria-hidden="true"></span>
+      <span><span class="brand-name">สุขใจ เฮลท์</span><span class="brand-sub">Sookjai Health</span></span>
+    </a>
+    <nav class="tabbar" aria-label="เมนูหลัก">
+      <a href="#home" data-nav>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        <span>หน้าแรก</span></a>
+      <a href="#pulse" data-nav>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.6a5 5 0 0 0-8.8-3.2 5 5 0 0 0-8.8 3.2c0 5.4 8.8 11 8.8 11s8.8-5.6 8.8-11z"/><path d="M4 12h4l2-3 3 6 2-3h5"/></svg>
+        <span>วัดชีพจร</span></a>
+      <a href="#symptoms" data-nav>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10l1.5 1.5L14 8M9 15h6M9 18h4"/></svg>
+        <span>เช็กอาการ</span></a>
+      <a href="#guidance" data-nav class="tab-sos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+        <span>ฉุกเฉิน</span></a>
+      <a href="#howto" data-nav>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.2"/></svg>
+        <span>วิธีใช้</span></a>
+    </nav>
+    <div class="header-actions">
+      <button id="btn-size" class="btn btn-ghost btn-icon" type="button" aria-label="ขนาดตัวอักษร: ปกติ กดเพื่อขยาย">ก<span aria-hidden="true">+</span></button>
+      <a class="btn btn-sos" href="tel:1669" aria-label="โทรสายด่วนการแพทย์ฉุกเฉิน 1669">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>1669</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= 1. HOME ================= -->
+<section id="home" class="section" aria-labelledby="home-title" tabindex="-1">
+  <div class="hero">
+    <div>
+      <h1 id="home-title"><span class="hero-title"><svg class="doodle" aria-hidden="true"><use href="#i-acorn"/></svg>สุขใจ เฮลท์<svg class="doodle" aria-hidden="true"><use href="#i-leaf"/></svg></span><small>ผู้ช่วยดูแลสุขภาพเบื้องต้น อ่านง่าย ใช้ง่าย สำหรับทุกวัย</small></h1>
+      <p class="lead">วัดชีพจรด้วยกล้องมือถือ (ทดลอง) เช็กอาการเบื้องต้นว่าควรดูแลตัวเองหรือควรไปพบแพทย์ และดูวิธีขอความช่วยเหลือเมื่อฉุกเฉิน</p>
+      <p class="privacy-pill"><span aria-hidden="true">🔒</span> ข้อมูลประมวลผลในเครื่องของคุณเท่านั้น ไม่ส่งออกไปที่ใด</p>
+      <div class="btn-row">
+        <a class="btn btn-lg" href="#pulse"><span aria-hidden="true">❤️</span> วัดชีพจร</a>
+        <a class="btn btn-lg btn-secondary" href="#symptoms"><span aria-hidden="true">📋</span> เช็กอาการ</a>
+        <button class="btn btn-lg btn-ghost" type="button" data-open-chat><span aria-hidden="true">💬</span> คุยกับน้องสุขใจ</button>
+        <button class="btn btn-ghost" type="button" id="btn-greet"><span aria-hidden="true">🔊</span> ฟังคำทักทาย</button>
+      </div>
+    </div>
+    <div class="hero-stage">
+      <div class="bubble"><p id="greet-text" aria-live="polite">สวัสดีค่ะ หนูชื่อน้องสุขใจ กระรอกน้อยผู้ช่วยดูแลสุขภาพ วันนี้รู้สึกอย่างไรบ้างคะ</p></div>
+      <button type="button" class="mascot-btn" id="hero-mascot-btn" aria-label="แตะน้องสุขใจ กระรอกน้อยมาสคอตของแอป เพื่อให้ทักทาย">
+        <span class="mascot" id="hero-mascot" data-mascot></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="callout callout-warn" style="margin-top:1.5rem">
+    <span class="ico" aria-hidden="true">⚠️</span>
+    <div>
+      <p><strong>โปรดอ่าน:</strong> แอปนี้เป็น<strong>ต้นแบบสำหรับการแข่งขัน/สาธิต</strong> ไม่ใช่เครื่องมือแพทย์ ยังไม่ผ่านการทดสอบความแม่นยำทางคลินิก และไม่ใช้แทนการวินิจฉัยของแพทย์</p>
+      <p>หากมีอาการฉุกเฉิน เช่น เจ็บแน่นหน้าอก หายใจลำบาก หรือแขนขาอ่อนแรงทันที <a href="tel:1669"><strong>โทร 1669 ทันที</strong></a></p>
+    </div>
+  </div>
+
+  <div class="grid-3 feature-cards">
+    <a class="feature" href="#pulse"><span class="f-ico" aria-hidden="true">❤️</span><strong>วัดชีพจรด้วยกล้อง</strong><span>วางนิ้วบนกล้องหลังประมาณ 25 วินาที ได้ค่าประมาณพร้อมบอกคุณภาพสัญญาณ</span></a>
+    <a class="feature" href="#symptoms"><span class="f-ico" aria-hidden="true">📋</span><strong>เช็กอาการเบื้องต้น</strong><span>เลือกอาการได้หลายข้อ รับคำแนะนำทั่วไป สัญญาณอันตราย และเมื่อไรควรพบแพทย์</span></a>
+    <a class="feature" href="#guidance"><span class="f-ico" aria-hidden="true">🚑</span><strong>ข้อมูลฉุกเฉิน</strong><span>เมื่อไรต้องโทร 1669 สังเกตอาการ BE-FAST และสิ่งที่ควรทำระหว่างรอ</span></a>
+  </div>
+</section>
+
+<!-- ================= 2. PULSE ================= -->
+<section id="pulse" class="section" aria-labelledby="pulse-title" tabindex="-1">
+  <div class="section-head"><span class="num" aria-hidden="true">1</span><h2 id="pulse-title">วัดชีพจรด้วยกล้อง <span class="badge badge-warn">ทดลอง</span></h2></div>
+  <p class="lead">ใช้เทคนิค PPG: กล้องจับการเปลี่ยนสีเล็กน้อยของปลายนิ้วตามจังหวะการเต้นของหัวใจ ระบบประมวลผลภาพจริงจากกล้องบนเครื่องของคุณ แต่ค่าที่ได้เป็น<strong>ค่าประมาณ</strong>ที่ยังไม่ผ่านการตรวจสอบความแม่นยำ</p>
+
+  <div class="ppg-layout">
+    <div class="card ppg-panel" id="ppg-panel">
+      <div class="btn-row" style="justify-content:space-between;margin-bottom:.8rem">
+        <span id="ppg-mode-badge" class="badge badge-real">โหมดวัดจริง (กล้อง)</span>
+        <span id="ppg-flash" class="small muted"></span>
+      </div>
+      <div class="ppg-top">
+        <div class="preview" id="ppg-preview">
+          <video id="ppg-video" playsinline muted autoplay aria-hidden="true"></video>
+          <span class="pv-label" id="ppg-finger">กล้องยังไม่เปิด</span>
+        </div>
+        <div class="bpm-box">
+          <div><span class="bpm-num" id="ppg-bpm" aria-hidden="true">--</span> <span class="bpm-unit">ครั้ง/นาที</span></div>
+          <span class="bpm-tag" id="ppg-bpm-tag">ยังไม่มีผล</span>
+          <div class="quality">
+            <span class="q-bars" id="ppg-qbars" data-level="" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span id="ppg-qlabel">คุณภาพสัญญาณ: —</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-box" id="ppg-status" role="status" aria-live="polite">กด “เริ่มวัด” แล้วอนุญาตให้ใช้กล้อง</div>
+      <div class="progress" id="ppg-progress" role="progressbar" aria-label="ความคืบหน้าการวัด" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+      <div class="timer" id="ppg-timer"></div>
+      <div class="wave-wrap"><canvas id="ppg-wave" aria-label="กราฟคลื่นชีพจรแบบสด" role="img"></canvas></div>
+
+      <div class="btn-row ppg-actions">
+        <button class="btn btn-lg" type="button" id="ppg-start"><span aria-hidden="true">▶</span> <span class="lbl">เริ่มวัด</span></button>
+        <button class="btn btn-lg btn-ghost" type="button" id="ppg-stop" disabled><span aria-hidden="true">■</span> หยุด</button>
+        <button class="btn btn-demo" type="button" id="ppg-demo">ลองโหมดสาธิต (ข้อมูลจำลอง)</button>
+      </div>
+
+      <div id="ppg-result" tabindex="-1"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>วิธีวัดให้ได้ผลดี</h3>
+        <ol class="steps">
+          <li>นั่งพักนิ่งๆ ประมาณ 5 นาทีก่อนวัด วางแขนบนโต๊ะ</li>
+          <li>กด <strong>เริ่มวัด</strong> แล้วกด <strong>อนุญาต</strong> ให้ใช้กล้อง</li>
+          <li>ใช้ <strong>ปลายนิ้วชี้</strong> ปิด<strong>กล้องหลังและไฟแฟลช</strong>ให้มิด กดเบาๆ ไม่ต้องกดแรง</li>
+          <li>อยู่นิ่งๆ หายใจตามปกติ ประมาณ 25 วินาที จนแถบเต็ม</li>
+          <li>ถ้าเครื่องเปิดไฟแฟลชไม่ได้ ให้วัดในที่สว่าง หรือหันกล้องเข้าหาแสงไฟ</li>
+        </ol>
+        <div class="callout callout-info small">
+          <span class="ico" aria-hidden="true">💡</span>
+          <p>ไฟแฟลชอาจทำให้กล้องอุ่นขึ้น ถ้ารู้สึกร้อนให้ยกนิ้วออกได้ทันที ภาพจากกล้อง<strong>ไม่ถูกบันทึกหรือส่งออก</strong> ใช้คำนวณในเครื่องแล้วทิ้งทันที</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>ข้อจำกัดที่ควรรู้</h3>
+        <ul class="small">
+          <li><strong>ไม่ใช่เครื่องมือแพทย์</strong> ยังไม่ได้เทียบความแม่นยำกับเครื่องมาตรฐานอย่างเป็นระบบ</li>
+          <li><strong>เบราว์เซอร์:</strong> ต้องเปิดผ่าน HTTPS (หรือ localhost) การเปิดไฟแฟลชใช้ได้เฉพาะบางเครื่อง (ส่วนใหญ่เป็น Chrome บน Android) iPhone มักเปิดแฟลชผ่านเบราว์เซอร์ไม่ได้</li>
+          <li><strong>แสง:</strong> แสงน้อยหรือแสงกะพริบ (เช่น หลอดไฟบางชนิด) ทำให้สัญญาณรบกวน</li>
+          <li><strong>การขยับ:</strong> นิ้วขยับ กดแรงเกินไป หรือมือเย็นมาก ทำให้สัญญาณอ่อนหรือผิดเพี้ยน</li>
+          <li><strong>อุปกรณ์:</strong> คอมพิวเตอร์ที่มีแต่กล้องหน้าและไม่มีไฟ มักวัดไม่ได้ อัตราเฟรมของกล้องต่ำทำให้คลาดเคลื่อน</li>
+          <li>จังหวะหัวใจที่ไม่สม่ำเสมออาจทำให้วัดไม่ได้หรือได้ค่าคลาดเคลื่อน แอปนี้<strong>ไม่ได้ตรวจหาโรคหัวใจ</strong></li>
+        </ul>
+      </div>
+
+      <details class="card" id="validation">
+        <summary>โหมดทดสอบความแม่นยำ (สำหรับทีมพัฒนา)</summary>
+        <p class="small">วัดพร้อมกับเครื่องวัดออกซิเจนปลายนิ้ว (pulse oximeter) ที่นิ้วอีกข้าง แล้วกรอกค่าจากเครื่องเพื่อเทียบ ข้อมูลเก็บไว้ชั่วคราวในหน้านี้เท่านั้น ปิดหน้าแล้วหายไป</p>
+        <div class="field">
+          <label for="ref-bpm">ค่าชีพจรอ้างอิงจากเครื่องวัด (ครั้ง/นาที)</label>
+          <input class="input" id="ref-bpm" type="number" inputmode="numeric" min="30" max="220" step="1" aria-describedby="ref-error" autocomplete="off">
+          <span class="field-error" id="ref-error" aria-live="polite"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" type="button" id="btn-save-pair">บันทึกคู่ค่ากับผลล่าสุด</button>
+          <button class="btn btn-secondary" type="button" id="btn-export">ดาวน์โหลด CSV</button>
+          <button class="btn btn-ghost" type="button" id="btn-clear-pairs">ล้างตาราง</button>
+        </div>
+        <div class="table-wrap">
+          <table aria-describedby="mae-note">
+            <caption class="visually-hidden">ตารางเปรียบเทียบค่าชีพจรจากแอปกับเครื่องวัดอ้างอิง</caption>
+            <thead><tr><th>#</th><th>เวลา</th><th>ประเภท</th><th class="num">แอป</th><th class="num">อ้างอิง</th><th class="num">|ผลต่าง|</th><th>คุณภาพ</th></tr></thead>
+            <tbody id="pairs-body"><tr><td colspan="7" class="muted">ยังไม่มีข้อมูล</td></tr></tbody>
+            <tfoot><tr><td colspan="5">MAE (เฉพาะการวัดจริง)</td><td class="num" id="mae-cell">—</td><td id="mae-n">n = 0</td></tr></tfoot>
+          </table>
+        </div>
+        <p class="small muted" id="mae-note">|ผลต่าง| = |ค่าแอป − ค่าอ้างอิง| · MAE = ค่าเฉลี่ยของ |ผลต่าง| ทุกแถวที่เป็นการวัดจริง (ไม่รวมข้อมูลจำลอง)</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. SYMPTOMS ================= -->
+<section id="symptoms" class="section" aria-labelledby="sym-title" tabindex="-1">
+  <div class="section-head"><span class="num" aria-hidden="true">2</span><h2 id="sym-title">เช็กอาการเบื้องต้น<svg class="doodle" aria-hidden="true"><use href="#i-leaf"/></svg></h2></div>
+  <p class="lead">เลือกอาการที่มีได้หลายข้อ น้องสุขใจจะให้คำแนะนำทั่วไปตามกฎที่กำหนดไว้ <strong>ไม่ใช่การวินิจฉัยโรค และไม่แนะนำยา</strong></p>
+
+  <form id="sym-form" class="card" novalidate>
+    <div class="field" style="margin-top:0">
+      <label for="sym-text">พิมพ์อาการด้วยคำพูดของคุณ (ไม่บังคับ)</label>
+      <textarea class="input" id="sym-text" rows="2" placeholder="เช่น ปวดหัว มีไข้ ไอมา 2 วัน" aria-describedby="sym-text-help"></textarea>
+      <span class="small muted" id="sym-text-help">ระบบจะค้นหาคำสำคัญแล้วเลือกอาการให้อัตโนมัติ โปรดตรวจสอบอีกครั้งด้านล่าง</span>
+      <div class="btn-row" style="margin-top:.4rem"><button class="btn btn-secondary" type="button" id="btn-match">ค้นหาอาการจากข้อความ</button></div>
+      <div class="match-note" id="match-note" aria-live="polite"></div>
+    </div>
+
+    <hr class="divider">
+
+    <fieldset>
+      <legend>1) มีอาการอะไรบ้าง? <span class="small muted">(เลือกได้หลายข้อ)</span></legend>
+      <div class="chip-grid" id="sym-grid"></div>
+    </fieldset>
+
+    <div class="sc-grid">
+      <fieldset class="flag-list">
+        <legend>2) มีสัญญาณอันตรายข้อใดไหม?</legend>
+        <div class="chip-grid" id="flag-grid" style="grid-template-columns:1fr"></div>
+      </fieldset>
+      <div>
+        <fieldset>
+          <legend>3) ข้อมูลเพิ่มเติม</legend>
+          <div class="chip-grid" id="ctx-grid" style="grid-template-columns:1fr"></div>
+        </fieldset>
+        <div class="field">
+          <label for="sym-duration">มีอาการมานานเท่าไร</label>
+          <select class="input" id="sym-duration">
+            <option value="">ไม่ระบุ</option>
+            <option value="lt1">น้อยกว่า 1 วัน</option>
+            <option value="1to3">1–3 วัน</option>
+            <option value="gt3">มากกว่า 3 วัน</option>
+            <option value="gt14">มากกว่า 2 สัปดาห์</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-error" id="sym-error" role="alert"></div>
+    <div class="btn-row">
+      <button class="btn btn-lg" type="submit"><span aria-hidden="true">🩺</span> ดูคำแนะนำ</button>
+      <button class="btn btn-lg btn-ghost" type="reset" id="btn-sym-reset">ล้างคำตอบ</button>
+    </div>
+  </form>
+
+  <div id="sym-result" class="card" hidden>
+    <h3 id="sym-result-title" tabindex="-1">ผลการประเมินเบื้องต้น</h3>
+    <div id="sym-result-body"></div>
+    <div class="btn-row" style="margin-top:1rem">
+      <button class="btn" type="button" id="btn-read-sym"><span aria-hidden="true">🔊</span> อ่านผลออกเสียง</button>
+      <button class="btn btn-ghost" type="button" data-stop-speech><span aria-hidden="true">⏹</span> หยุดอ่าน</button>
+      <a class="btn btn-secondary" href="#symptoms" id="btn-sym-again">เช็กใหม่</a>
+    </div>
+    <p class="small muted" style="margin-top:1rem">คำแนะนำนี้มาจากกฎอย่างง่ายที่ทีมพัฒนาเขียนขึ้นจากคำแนะนำสุขภาพทั่วไป <strong>ยังไม่ได้รับการตรวจทานโดยบุคลากรทางการแพทย์</strong> ไม่ใช่การวินิจฉัย หากไม่แน่ใจ ให้ปรึกษาแพทย์หรือเภสัชกร</p>
+  </div>
+</section>
+
+<!-- ================= 4. GUIDANCE / EMERGENCY ================= -->
+<section id="guidance" class="section" aria-labelledby="guide-title" tabindex="-1">
+  <div class="section-head"><span class="num" aria-hidden="true">3</span><h2 id="guide-title">คำแนะนำและเหตุฉุกเฉิน<svg class="doodle" aria-hidden="true"><use href="#i-leaf"/></svg></h2></div>
+
+  <div class="card sos-card">
+    <h3>เจ็บป่วยฉุกเฉิน โทรสายด่วน 1669</h3>
+    <div class="sos-big">
+      <span class="sos-number" aria-hidden="true">1669</span>
+      <a class="btn btn-lg btn-sos-light" href="tel:1669"><span aria-hidden="true">📞</span> กดเพื่อโทร 1669</a>
+    </div>
+    <p>สายด่วนการแพทย์ฉุกเฉิน โทรฟรี ตลอด 24 ชั่วโมง ทั่วประเทศไทย</p>
+  </div>
+
+  <div class="grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h3>เมื่อไรควรโทร 1669 ทันที</h3>
+      <ul>
+        <li>เจ็บ แน่น หรืออึดอัดหน้าอก โดยเฉพาะถ้าร้าวไปแขน กราม หรือหลัง</li>
+        <li>หายใจลำบาก หอบเหนื่อย พูดไม่เป็นประโยค ริมฝีปากเขียว</li>
+        <li>หน้าเบี้ยว ปากเบี้ยว พูดไม่ชัด แขนขาอ่อนแรงทันทีทันใด</li>
+        <li>หมดสติ ชัก ซึมมาก ปลุกไม่ค่อยตื่น</li>
+        <li>เลือดออกมากไม่หยุด อาเจียนหรือไอเป็นเลือด</li>
+        <li>หน้า ปาก หรือคอบวมเฉียบพลันหลังสัมผัสสิ่งที่แพ้</li>
+        <li>อุบัติเหตุรุนแรง</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>สังเกตอาการโรคหลอดเลือดสมอง: BE-FAST</h3>
+      <ul class="befast">
+        <li><b aria-hidden="true">B</b><span><strong>Balance</strong> เดินเซ ทรงตัวไม่ได้ทันที</span></li>
+        <li><b aria-hidden="true">E</b><span><strong>Eyes</strong> ตามัว มองเห็นภาพซ้อนทันที</span></li>
+        <li><b aria-hidden="true">F</b><span><strong>Face</strong> หน้าเบี้ยว ปากเบี้ยว</span></li>
+        <li><b aria-hidden="true">A</b><span><strong>Arm</strong> แขนขาอ่อนแรงหรือชาครึ่งซีก</span></li>
+        <li><b aria-hidden="true">S</b><span><strong>Speech</strong> พูดไม่ชัด พูดไม่ออก</span></li>
+        <li><b aria-hidden="true">T</b><span><strong>Time</strong> จดเวลาที่เริ่มเป็น แล้วโทร 1669 ทันที</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>เมื่อโทร 1669 ควรบอกอะไร</h3>
+      <ol>
+        <li>อาการของผู้ป่วย และเริ่มเป็นตั้งแต่เมื่อไร</li>
+        <li>สถานที่ จุดสังเกต และเส้นทาง</li>
+        <li>ชื่อและเบอร์โทรที่ติดต่อกลับได้</li>
+        <li>จำนวนผู้ป่วย</li>
+        <li>ฟังคำแนะนำ และ<strong>อย่าวางสายก่อน</strong>เจ้าหน้าที่บอก</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>ระหว่างรอความช่วยเหลือ</h3>
+      <ul>
+        <li>อยู่กับผู้ป่วย ให้นั่งหรือนอนในท่าที่สบาย</li>
+        <li>ถ้าผู้ป่วยซึมหรือกลืนลำบาก <strong>อย่าให้กินอาหารหรือน้ำ</strong></li>
+        <li>เตรียมรายการยาที่ใช้ประจำ และบัตรประจำตัว</li>
+        <li>เปิดประตู เปิดไฟ ให้เจ้าหน้าที่เข้าถึงได้ง่าย</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h3>สายด่วนอื่นๆ</h3>
+      <ul class="hotlines">
+        <li><span><strong>การแพทย์ฉุกเฉิน</strong><br><span class="small muted">เจ็บป่วยฉุกเฉิน อุบัติเหตุ</span></span><a class="hn" href="tel:1669">1669</a></li>
+        <li><span><strong>สายด่วนสุขภาพจิต</strong><br><span class="small muted">กรมสุขภาพจิต ตลอด 24 ชั่วโมง</span></span><a class="hn" href="tel:1323">1323</a></li>
+        <li><span><strong>ศูนย์พิษวิทยา</strong><br><span class="small muted">ได้รับสารพิษ กินยาเกินขนาด</span></span><a class="hn" href="tel:1367">1367</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>ดูแลสุขภาพประจำวัน</h3>
+      <ul>
+        <li>ดื่มน้ำสะอาดให้เพียงพอ ระหว่างวัน</li>
+        <li>นอนหลับให้เพียงพอ และพักผ่อนเมื่อรู้สึกไม่สบาย</li>
+        <li>ขยับร่างกายสม่ำเสมอตามความเหมาะสมกับสุขภาพ</li>
+        <li>กินอาหารครบหมู่ เพิ่มผักผลไม้ ลดหวาน มัน เค็ม</li>
+        <li>ไปตามนัดแพทย์ และกินยาตามที่แพทย์สั่ง ไม่ซื้อยากินเองโดยไม่ปรึกษาเภสัชกร</li>
+        <li>ตรวจสุขภาพเป็นประจำตามคำแนะนำของบุคลากรทางการแพทย์</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. HOW TO ================= -->
+<section id="howto" class="section" aria-labelledby="howto-title" tabindex="-1">
+  <div class="section-head"><span class="num" aria-hidden="true">4</span><h2 id="howto-title">วิธีใช้และข้อควรทราบ<svg class="doodle" aria-hidden="true"><use href="#i-leaf"/></svg></h2></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>ใช้งานง่ายๆ</h3>
+      <ol class="steps">
+        <li>กดเมนูด้านล่าง (หรือด้านบนในคอมพิวเตอร์) เพื่อไปยังส่วนที่ต้องการ</li>
+        <li><strong>วัดชีพจร:</strong> กดเริ่มวัด อนุญาตกล้อง วางนิ้วปิดกล้องหลัง</li>
+        <li><strong>เช็กอาการ:</strong> เลือกอาการ แล้วกด “ดูคำแนะนำ”</li>
+        <li>กด <strong>🔊 อ่านผลออกเสียง</strong> ถ้าต้องการฟัง กด <strong>ก+</strong> ด้านบนเพื่อขยายตัวอักษร</li>
+        <li>กดปุ่ม <strong>คุยกับน้องสุขใจ</strong> มุมขวาล่าง เพื่อพิมพ์คุยหรือเลือกคำถามด่วน แตะตัวน้องสุขใจที่หน้าแรกเพื่อให้ทักทายก็ได้</li>
+      </ol>
+      <p class="small muted">ใช้แป้นพิมพ์ได้: กด Tab เพื่อเลื่อนไปทีละปุ่ม กด Enter หรือ Space เพื่อเลือก</p>
+    </div>
+    <div class="card">
+      <h3>ความเป็นส่วนตัว</h3>
+      <ul>
+        <li>ทุกอย่างทำงาน<strong>ในเบราว์เซอร์ของคุณ</strong> ไม่มีเซิร์ฟเวอร์ ไม่มีการส่งข้อมูลสุขภาพหรือภาพจากกล้องออกไป</li>
+        <li>ไม่บันทึกอาการหรือผลการวัดไว้ถาวร ปิดหน้าแล้วข้อมูลหายไป</li>
+        <li>สิ่งเดียวที่จำไว้ในเครื่องคือ<strong>ขนาดตัวอักษร</strong>ที่คุณเลือก</li>
+        <li>หน้าเว็บนี้ไม่โหลดไฟล์จากอินเทอร์เน็ต จึงใช้งานแบบออฟไลน์ได้หลังเปิดแล้ว</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>สถานะของแต่ละฟีเจอร์ (บอกตรงๆ)</h3>
+    <div class="table-wrap">
+      <table class="status-table">
+        <thead><tr><th>ฟีเจอร์</th><th>สถานะ</th><th>รายละเอียด</th></tr></thead>
+        <tbody>
+          <tr><td>วัดชีพจรด้วยกล้อง</td><td><span class="st st-real">ทำงานจริง</span> <span class="st st-unval">ยังไม่ตรวจสอบความแม่นยำ</span></td><td>ประมวลผลภาพจากกล้องจริง กรองสัญญาณ หาจุดยอดคลื่น และตรวจคุณภาพก่อนแสดงผล แต่ยังไม่ได้เทียบกับเครื่องมาตรฐานอย่างเป็นระบบ</td></tr>
+          <tr><td>โหมดสาธิตวัดชีพจร</td><td><span class="st st-sim">ข้อมูลจำลอง</span></td><td>สร้างคลื่นชีพจรปลอมเพื่อสาธิตการทำงาน ผ่านอัลกอริทึมเดียวกัน แสดงป้าย “ข้อมูลจำลอง” ทุกครั้ง ไม่ใช่ชีพจรของคุณ</td></tr>
+          <tr><td>เช็กอาการ</td><td><span class="st st-real">ทำงานจริง</span> <span class="st st-unval">ยังไม่ผ่านแพทย์ตรวจทาน</span></td><td>ใช้กฎและคำสำคัญอย่างง่าย (14 อาการ 9 สัญญาณอันตราย) ไม่ใช่ AI ไม่วินิจฉัย ไม่แนะนำยา</td></tr>
+          <tr><td>คุยกับน้องสุขใจ</td><td><span class="st st-real">ทำงานจริง</span></td><td>ตอบตามกฎและคำสำคัญ (ไม่ใช่ AI) ตรวจอาการฉุกเฉินก่อนเสมอ ข้อความไม่ถูกส่งออกจากเครื่อง ยังไม่รองรับการพูดสั่งงาน เพราะระบบรับเสียงของเบราว์เซอร์ส่งเสียงไปยังเซิร์ฟเวอร์ภายนอก</td></tr>
+          <tr><td>อ่านออกเสียงภาษาไทย</td><td><span class="st st-real">ทำงานจริง</span></td><td>ขึ้นกับเบราว์เซอร์และเสียงภาษาไทยที่มีในเครื่อง สถานะในเครื่องนี้: <strong id="voice-status">กำลังตรวจสอบ…</strong></td></tr>
+          <tr><td>ตารางทดสอบความแม่นยำ</td><td><span class="st st-real">ทำงานจริง</span></td><td>คำนวณ |ผลต่าง| และ MAE ส่งออกเป็น CSV ได้ ยังไม่มีผลการทดสอบจริง</td></tr>
+          <tr><td>บันทึกประวัติ / บัญชีผู้ใช้ / ค่าออกซิเจนในเลือด</td><td><span class="st st-none">ยังไม่มี</span></td><td>ตั้งใจไม่ทำในต้นแบบนี้ เพื่อลดความเสี่ยงด้านข้อมูลส่วนบุคคล</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout callout-danger" style="margin-top:1rem">
+    <span class="ico" aria-hidden="true">🩺</span>
+    <div>
+      <p><strong>ข้อจำกัดความรับผิดชอบ</strong></p>
+      <p>สุขใจ เฮลท์ เป็นต้นแบบเพื่อการศึกษาและการสาธิต <strong>ไม่ใช่เครื่องมือแพทย์</strong> ไม่ได้ขึ้นทะเบียนหรือรับรองโดยหน่วยงานใด ไม่ได้ผ่านการทดสอบทางคลินิก ค่าชีพจรที่แสดงเป็นเพียงค่าประมาณ และคำแนะนำเป็นข้อมูลสุขภาพทั่วไป ไม่ใช่การวินิจฉัยหรือการรักษา ควรปรึกษาแพทย์หรือเภสัชกรเสมอ หากฉุกเฉินโทร 1669</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="inner">
+    <p><strong>สุขใจ เฮลท์ (Sookjai Health)</strong> · ต้นแบบสำหรับการแข่งขัน · ไม่ใช่เครื่องมือแพทย์</p>
+    <p>ฉุกเฉินโทร <a href="tel:1669">1669</a> · สุขภาพจิต <a href="tel:1323">1323</a> · ศูนย์พิษวิทยา <a href="tel:1367">1367</a></p>
+  </div>
+</footer>
+
+<button class="chat-fab" type="button" id="chat-fab" data-open-chat aria-haspopup="dialog" aria-controls="chat" aria-expanded="false">
+  <span class="mascot" data-mascot="head" aria-hidden="true"></span><span class="fab-label">คุยกับน้องสุขใจ</span>
+  <span class="visually-hidden">เปิดหน้าต่างคุยกับน้องสุขใจ</span>
+</button>
+<section class="chat" id="chat" role="dialog" aria-modal="false" aria-labelledby="chat-title" hidden>
+  <div class="chat-head">
+    <h2 id="chat-title">คุยกับน้องสุขใจ <svg class="doodle" aria-hidden="true"><use href="#i-acorn"/></svg></h2>
+    <button class="btn btn-ghost" type="button" id="chat-voice" aria-pressed="true">🔊 เสียง: เปิด</button>
+    <button class="btn btn-ghost" type="button" id="chat-close" aria-label="ปิดหน้าต่างคุย">✕</button>
+  </div>
+  <div class="chat-stage"><span class="mascot" id="chat-mascot" data-mascot role="img" aria-label="น้องสุขใจ กระรอกน้อย"></span></div>
+  <ol class="chat-log" id="chat-log" aria-live="polite" aria-label="บทสนทนา"></ol>
+  <div class="chat-quick" id="chat-quick" role="group" aria-label="ข้อความด่วน"></div>
+  <form class="chat-form" id="chat-form" autocomplete="off">
+    <label class="visually-hidden" for="chat-text">พิมพ์ข้อความถึงน้องสุขใจ</label>
+    <input class="input" id="chat-text" type="text" placeholder="พิมพ์ เช่น ปวดหัว, วัดชีพจรยังไง" enterkeyhint="send" maxlength="300">
+    <button class="btn" type="submit">ส่ง</button>
+  </form>
+  <p class="chat-note">น้องสุขใจตอบตามกฎที่ตั้งไว้ (ไม่ใช่ AI) ไม่วินิจฉัยโรค ไม่แนะนำยา และข้อความไม่ถูกส่งออกจากเครื่องของคุณ</p>
+</section>
+
+<div class="speak-bar" id="speak-bar" hidden>
+  <span><span aria-hidden="true">🔊</span> น้องสุขใจกำลังพูด…</span>
+  <button class="btn" type="button" data-stop-speech>หยุดอ่าน</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= Utilities ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clamp01 = v => Math.max(0, Math.min(1, v));
+
+function toast(msg, type = 'info', ms = 6000) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.dataset.type = type;
+  el.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+/* ================= Mascot ================= */
+// น้องสุขใจ, drawn after Character_Design.jpg: chipmunk with striped head, cream muzzle and belly,
+// orange inner ears, peach cheeks and a curled tail. Every part a mood/pose toggles has an sq-* class.
+const OL = '#3B2416', FUR = '#A86B3C', FUR2 = '#9A6234', STRIPE = '#6B4226', CREAM = '#F6E3C3', MOUTH = '#7A2E2A';
+const mascotSVG = head => `<svg class="mascot-svg${head ? ' is-head' : ''}" viewBox="${head ? '48 14 144 140' : '-22 8 262 252'}" aria-hidden="true" focusable="false">
+  <ellipse class="sq-shadow" cx="120" cy="251" rx="62" ry="8" fill="${OL}" opacity=".15"/>
+  <g class="sq-all">
+    <g class="sq-tail">
+      <!-- band + curl drawn twice (outline underlay, then fill) so they merge into one silhouette -->
+      <g fill="${OL}" stroke="${OL}" stroke-width="8" stroke-linejoin="round">
+        <path d="M88 238C30 246-10 212-10 160-10 126-6 102 2 88L42 96C36 122 38 152 52 178 64 202 76 222 88 238Z"/><circle cx="16" cy="64" r="31"/></g>
+      <g fill="${FUR2}">
+        <path d="M88 238C30 246-10 212-10 160-10 126-6 102 2 88L42 96C36 122 38 152 52 178 64 202 76 222 88 238Z"/><circle cx="16" cy="64" r="31"/></g>
+      <path d="M2 104C-4 144 10 190 48 216 60 224 72 230 84 234" fill="none" stroke="${CREAM}" stroke-width="10" stroke-linecap="round"/>
+      <path d="M16 64a5 5 0 0 1 10 0a10 10 0 0 1-20 0a15 15 0 0 1 30 0a20 20 0 0 1-40 0" fill="none" stroke="${CREAM}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M22 104C20 140 32 176 58 202" fill="none" stroke="${STRIPE}" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g class="sq-body">
+      <path d="M120 120C162 120 178 160 176 198 174 230 156 246 120 246 84 246 66 230 64 198 62 160 78 120 120 120Z" fill="${FUR}" stroke="${OL}" stroke-width="4"/>
+      <ellipse cx="120" cy="198" rx="37" ry="41" fill="${CREAM}"/>
+      <ellipse cx="97" cy="246" rx="18" ry="9" fill="${FUR2}" stroke="${OL}" stroke-width="3.5"/>
+      <ellipse cx="143" cy="246" rx="18" ry="9" fill="${FUR2}" stroke="${OL}" stroke-width="3.5"/>
+      <ellipse class="sq-arm-rest-l" cx="80" cy="184" rx="11" ry="24" transform="rotate(14 80 184)" fill="${FUR}" stroke="${OL}" stroke-width="3.5"/>
+      <ellipse class="sq-arm-rest-r" cx="160" cy="184" rx="11" ry="24" transform="rotate(-14 160 184)" fill="${FUR}" stroke="${OL}" stroke-width="3.5"/>
+      <g class="sq-arm-wave"><ellipse cx="174" cy="140" rx="11" ry="26" transform="rotate(35 174 140)" fill="${FUR}" stroke="${OL}" stroke-width="3.5"/></g>
+      <g class="sq-acorn">
+        <ellipse cx="100" cy="178" rx="11" ry="22" transform="rotate(-52 100 178)" fill="${FUR}" stroke="${OL}" stroke-width="3.5"/>
+        <ellipse cx="140" cy="178" rx="11" ry="22" transform="rotate(52 140 178)" fill="${FUR}" stroke="${OL}" stroke-width="3.5"/>
+        <ellipse cx="120" cy="194" rx="14" ry="16" fill="#C98A4B" stroke="${OL}" stroke-width="3"/>
+        <path d="M103 186Q120 168 137 186Q120 192 103 186Z" fill="#7A4A24" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M120 175l3-8" stroke="${OL}" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="106" cy="196" r="7" fill="${FUR}" stroke="${OL}" stroke-width="3"/>
+        <circle cx="134" cy="196" r="7" fill="${FUR}" stroke="${OL}" stroke-width="3"/>
+      </g>
+    </g>
+    <g class="sq-head">
+      <g class="sq-ear-l"><path d="M66 70C58 44 64 22 74 20 84 18 96 34 102 48Z" fill="${FUR}" stroke="${OL}" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M72 60C68 42 72 31 77 30 82 30 90 40 94 48Z" fill="#E8894A"/></g>
+      <path d="M174 70C182 44 176 22 166 20 156 18 144 34 138 48Z" fill="${FUR}" stroke="${OL}" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M168 60C172 42 168 31 163 30 158 30 150 40 146 48Z" fill="#E8894A"/>
+      <path d="M120 32C162 32 188 60 188 96 188 128 160 148 120 148 80 148 52 128 52 96 52 60 78 32 120 32Z" fill="${FUR}" stroke="${OL}" stroke-width="4"/>
+      <g stroke="${STRIPE}" stroke-linecap="round" fill="none"><path d="M120 35C118 47 118 59 120 71" stroke-width="8"/><path d="M102 39C97 49 96 59 99 67" stroke-width="6"/><path d="M138 39C143 49 144 59 141 67" stroke-width="6"/></g>
+      <path d="M68 114C68 94 92 88 120 98 148 88 172 94 172 114 172 136 150 146 120 146 90 146 68 136 68 114Z" fill="${CREAM}"/>
+      <g class="sq-eyes-open">
+        <g class="sq-eye"><ellipse cx="100" cy="98" rx="9.5" ry="12" fill="${OL}"/><circle cx="103.5" cy="92.5" r="3.8" fill="#fff"/><circle cx="97" cy="103" r="1.8" fill="#fff"/></g>
+        <g class="sq-eye"><ellipse cx="140" cy="98" rx="9.5" ry="12" fill="${OL}"/><circle cx="143.5" cy="92.5" r="3.8" fill="#fff"/><circle cx="137" cy="103" r="1.8" fill="#fff"/></g>
+      </g>
+      <g class="sq-eyes-happy" fill="none" stroke="${OL}" stroke-width="4.5" stroke-linecap="round"><path d="M89 101Q100 87 111 101"/><path d="M129 101Q140 87 151 101"/></g>
+      <g class="sq-brow-worry" stroke="${OL}" stroke-width="4" stroke-linecap="round"><path d="M88 82L108 75"/><path d="M152 82L132 75"/></g>
+      <g class="sq-brow-curious" fill="none" stroke="${OL}" stroke-width="4" stroke-linecap="round"><path d="M88 80Q98 69 110 75"/><path d="M132 83L152 83"/></g>
+      <ellipse cx="80" cy="121" rx="12" ry="7.5" fill="#F4A08A" opacity=".85"/>
+      <ellipse cx="160" cy="121" rx="12" ry="7.5" fill="#F4A08A" opacity=".85"/>
+      <path d="M113 110Q120 105 127 110Q120 118 113 110Z" fill="${OL}"/>
+      <g class="sq-mouth">
+        <path class="sq-m-smile" d="M120 115V120M110 120Q115 126 120 120Q125 126 130 120" fill="none" stroke="${OL}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <g class="sq-m-grin"><path d="M106 119Q120 143 134 119Z" fill="${MOUTH}" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/><ellipse cx="120" cy="131" rx="6" ry="4" fill="#E57373"/></g>
+        <ellipse class="sq-m-talk" cx="120" cy="125" rx="8" ry="7" fill="${MOUTH}" stroke="${OL}" stroke-width="2.5"/>
+        <ellipse class="sq-m-o" cx="120" cy="127" rx="5.5" ry="6.5" fill="${MOUTH}" stroke="${OL}" stroke-width="2.5"/>
+        <path class="sq-m-curious" d="M113 126Q119 122 126 126" fill="none" stroke="${OL}" stroke-width="3.2" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+</svg>`;
+$$('[data-mascot]').forEach(el => el.insertAdjacentHTML('afterbegin', mascotSVG(el.dataset.mascot === 'head')));
+
+// One character shown in several places, so every instance shares the same state.
+const Mascot = (() => {
+  const st = { base: 'happy', temp: null, pose: 'idle', talking: false, fake: false };
+  let moodTimer, poseTimer, fakeTimer;
+  const apply = () => $$('.mascot').forEach(m => {
+    m.dataset.mood = st.temp || st.base;
+    m.dataset.pose = st.pose;
+    m.dataset.talking = String(st.talking || st.fake);
+  });
+  const api = {
+    setBase(mood) { st.base = mood; apply(); },
+    // Temporary expression, e.g. 'excited' after a good result or 'surprised' at an alert.
+    express(mood, ms = 2400) {
+      st.temp = mood; apply();
+      if (mood === 'excited') api.pose('acorn', ms);
+      clearTimeout(moodTimer);
+      moodTimer = setTimeout(() => { st.temp = null; apply(); }, ms);
+    },
+    pose(p, ms = 2600) {
+      st.pose = p; apply();
+      clearTimeout(poseTimer);
+      poseTimer = setTimeout(() => { st.pose = 'idle'; apply(); }, ms);
+    },
+    wave(ms) { api.pose('wave', ms); },
+    setTalking(on) { st.talking = on; apply(); },
+    // Animate the mouth without audio (when speech is off or unavailable).
+    talkFor(ms) {
+      st.fake = true; apply();
+      clearTimeout(fakeTimer);
+      fakeTimer = setTimeout(() => { st.fake = false; apply(); }, ms);
+    },
+    walkIn(el) {
+      if (!el) return;
+      el.classList.remove('walk-in'); void el.offsetWidth; el.classList.add('walk-in');
+      setTimeout(() => el.classList.remove('walk-in'), 1400);
+    }
+  };
+  apply();
+  return api;
+})();
+
+/* ================= Text size ================= */
+(function initTextSize() {
+  const labels = ['ปกติ', 'ใหญ่', 'ใหญ่มาก'];
+  const btn = $('#btn-size');
+  let size = 0;
+  try { size = Math.min(2, Math.max(0, parseInt(localStorage.getItem('sj-text-size') || '0', 10) || 0)); } catch (e) { /* storage blocked */ }
+  const apply = () => {
+    document.documentElement.dataset.size = String(size);
+    btn.setAttribute('aria-label', `ขนาดตัวอักษร: ${labels[size]} กดเพื่อเปลี่ยน`);
+    btn.title = `ขนาดตัวอักษร: ${labels[size]}`;
+  };
+  btn.addEventListener('click', () => {
+    size = (size + 1) % 3;
+    apply();
+    try { localStorage.setItem('sj-text-size', String(size)); } catch (e) { /* ignore */ }
+    toast(`ขนาดตัวอักษร: ${labels[size]}`, 'info', 2000);
+  });
+  apply();
+})();
+
+/* ================= Navigation highlight ================= */
+(function initNav() {
+  const links = $$('[data-nav]');
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const setCurrent = id => links.forEach(a => {
+    if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'location');
+    else a.removeAttribute('aria-current');
+  });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) setCurrent(e.target.id); });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    byId.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+  }
+  links.forEach(a => a.addEventListener('click', () => setCurrent(a.getAttribute('href').slice(1))));
+  setCurrent((location.hash || '#home').slice(1));
+})();
+
+/* ================= Thai text-to-speech ================= */
+const Speech = (() => {
+  const synth = window.speechSynthesis;
+  const supported = !!synth && typeof window.SpeechSynthesisUtterance === 'function';
+  let voice = null;
+  let voicesKnown = false;
+  let broken = false; // set after a real synthesis error, so callers can fall back to silent mode
+  let token = 0;
+  let watchdog = null;
+  const bar = $('#speak-bar');
+  const statusEl = $('#voice-status');
+
+  function loadVoices() {
+    if (!supported) return;
+    const vs = synth.getVoices();
+    if (vs.length) {
+      voicesKnown = true;
+      voice = vs.find(v => /^th([-_]|$)/i.test(v.lang)) || vs.find(v => /thai|ไทย/i.test(v.name)) || null;
+    }
+    updateStatus();
+  }
+  function updateStatus() {
+    if (!statusEl) return;
+    if (!supported) statusEl.textContent = 'เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง';
+    else if (voice) statusEl.textContent = `พบเสียงภาษาไทย (${voice.name})`;
+    else if (voicesKnown) statusEl.textContent = 'ไม่พบเสียงภาษาไทยในเครื่องนี้';
+    else statusEl.textContent = 'ยังตรวจสอบไม่ได้ (บางเบราว์เซอร์โหลดรายชื่อเสียงช้า)';
+  }
+  if (supported) {
+    loadVoices();
+    if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', loadVoices);
+    setTimeout(loadVoices, 1500);
+  } else updateStatus();
+
+  function setSpeaking(on) {
+    bar.hidden = !on;
+    Mascot.setTalking(on);
+    clearInterval(watchdog);
+    if (on) {
+      // Some browsers never fire onend; poll so the UI never gets stuck "speaking".
+      watchdog = setInterval(() => { if (!synth.speaking && !synth.pending) setSpeaking(false); }, 600);
+    }
+  }
+  // Long utterances get cut off in Chrome, so speak in short chunks.
+  function chunk(text) {
+    const out = [];
+    text.split(/\n+/).forEach(line => {
+      let cur = '';
+      line.split(/\s+/).forEach(w => {
+        if (!w) return;
+        if ((cur + ' ' + w).length > 140 && cur) { out.push(cur); cur = w; }
+        else cur = cur ? cur + ' ' + w : w;
+      });
+      if (cur) out.push(cur);
+    });
+    return out;
+  }
+  // quiet: skip the "no voice" toasts (the chat falls back to a silent talking animation instead).
+  function speak(text, opts = {}) {
+    if (!supported) {
+      if (opts.quiet) return false;
+      toast('เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง ลองใช้ Chrome, Edge หรือ Safari รุ่นใหม่ (ข้อความยังอ่านบนจอได้ตามปกติ)', 'warn', 8000);
+      return false;
+    }
+    loadVoices();
+    if (voicesKnown && !voice) {
+      if (opts.quiet) return false;
+      toast('ไม่พบเสียงภาษาไทยในอุปกรณ์นี้ จึงอ่านออกเสียงไม่ได้ ติดตั้งเสียงภาษาไทยได้ในการตั้งค่าเครื่อง (หัวข้อ “แปลงข้อความเป็นเสียง”)', 'warn', 9000);
+      return false;
+    }
+    synth.cancel();
+    const my = ++token;
+    const parts = chunk(text);
+    let left = parts.length;
+    parts.forEach(p => {
+      const u = new SpeechSynthesisUtterance(p);
+      u.lang = 'th-TH';
+      if (voice) u.voice = voice;
+      u.rate = 0.9;
+      u.pitch = 1.1;
+      u.onend = () => { if (my === token && --left <= 0) setSpeaking(false); };
+      u.onerror = e => {
+        if (my !== token) return;
+        if (e.error !== 'interrupted' && e.error !== 'canceled') {
+          broken = true;
+          if (!opts.quiet) toast('อ่านออกเสียงไม่สำเร็จ อุปกรณ์อาจไม่มีเสียงภาษาไทย', 'warn');
+          token++;
+          synth.cancel();
+        }
+        setSpeaking(false);
+      };
+      synth.speak(u);
+    });
+    setSpeaking(true);
+    if (!voicesKnown && !opts.quiet) toast('ถ้าไม่ได้ยินเสียง อุปกรณ์นี้อาจไม่มีเสียงภาษาไทย', 'info', 4000);
+    return true;
+  }
+  function stop() {
+    token++;
+    if (supported) synth.cancel();
+    setSpeaking(false);
+  }
+  // false only when we know for sure Thai speech cannot work here
+  const available = () => { loadVoices(); return supported && !broken && !(voicesKnown && !voice); };
+  return { speak, stop, available, get supported() { return supported; } };
+})();
+
+// Spell emergency numbers digit by digit so TTS doesn't read "one thousand six hundred…"
+const speakable = s => s.replace(/1669/g, 'หนึ่ง หก หก เก้า').replace(/1323/g, 'หนึ่ง สาม สอง สาม').replace(/1367/g, 'หนึ่ง สาม หก เจ็ด');
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-stop-speech]')) Speech.stop();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') Speech.stop(); });
+
+/* ================= Hero: tap the mascot ================= */
+(function initHero() {
+  const bubble = $('#greet-text');
+  const GREETING = 'สวัสดีค่ะ หนูชื่อน้องสุขใจ กระรอกน้อยผู้ช่วยดูแลสุขภาพ ให้หนูช่วยวัดชีพจร หรือช่วยดูอาการเบื้องต้นก็ได้นะคะ ถ้ามีอาการฉุกเฉิน โทร 1669 ได้ทันทีค่ะ';
+  const POKES = [
+    ['excited', 'ว้าว! ดีใจจังที่ได้เจอค่ะ วันนี้ดื่มน้ำหรือยังคะ'],
+    ['surprised', 'โอ๊ะ! จั๊กจี้ค่ะ อยากคุยกับหนูไหม กดปุ่ม “คุยกับน้องสุขใจ” ได้เลยนะคะ'],
+    ['curious', 'หืม? วันนี้รู้สึกอย่างไรบ้างคะ ถ้าไม่สบาย ลองเช็กอาการกับหนูได้นะ'],
+    ['excited', 'หนูเก็บลูกโอ๊กไว้ให้ด้วยค่ะ ลุกขึ้นยืดเส้นยืดสายกันสักหน่อยไหมคะ'],
+    ['happy', 'นอนหลับให้พอ กินผักผลไม้ แล้วร่างกายจะสดชื่นนะคะ']
+  ];
+  let i = 0;
+  $('#hero-mascot-btn').addEventListener('click', () => {
+    const [mood, line] = POKES[i++ % POKES.length];
+    bubble.textContent = line;
+    Mascot.express(mood, 2600);
+    if (mood === 'happy') Mascot.wave(2400);
+    Mascot.talkFor(Math.min(3500, line.length * 55));
+  });
+  $('#btn-greet').addEventListener('click', () => {
+    bubble.textContent = GREETING;
+    Mascot.wave(3000);
+    if (!Speech.speak(speakable(GREETING))) Mascot.talkFor(3000);
+  });
+  // Greet with a wave when the page opens (motion respects prefers-reduced-motion via CSS).
+  setTimeout(() => { Mascot.walkIn($('#hero-mascot')); Mascot.wave(3200); }, 300);
+})();
+
+/* ================= PPG signal processing (pure functions) ================= */
+/* PPG-CORE-START */
+const PPGCore = (() => {
+  const FS = 30; // analysis sample rate after resampling (Hz)
+  const mean = a => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return a.length ? s / a.length : 0; };
+  const std = a => { const m = mean(a); let s = 0; for (let i = 0; i < a.length; i++) s += (a[i] - m) ** 2; return a.length ? Math.sqrt(s / a.length) : 0; };
+  const median = a => { if (!a.length) return 0; const s = Array.from(a).sort((x, y) => x - y); const k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
+
+  // Frame timestamps are irregular; linearly resample onto a uniform grid.
+  function resample(samples, fs) {
+    const t0 = samples[0].t, t1 = samples[samples.length - 1].t;
+    const n = Math.floor((t1 - t0) * fs) + 1;
+    const out = new Float64Array(n);
+    let j = 0;
+    for (let i = 0; i < n; i++) {
+      const t = t0 + i / fs;
+      while (j < samples.length - 2 && samples[j + 1].t < t) j++;
+      const a = samples[j], b = samples[j + 1] || a;
+      const dt = b.t - a.t;
+      out[i] = dt > 0 ? a.v + (b.v - a.v) * clamp01((t - a.t) / dt) : a.v;
+    }
+    return out;
+  }
+
+  // RBJ biquad (Butterworth Q), run forward and backward for zero phase.
+  function biquad(type, f0, fs) {
+    const w0 = 2 * Math.PI * f0 / fs, c = Math.cos(w0), alpha = Math.sin(w0) / (2 * Math.SQRT1_2);
+    const a0 = 1 + alpha;
+    const b = type === 'lp' ? [(1 - c) / 2, 1 - c, (1 - c) / 2] : [(1 + c) / 2, -(1 + c), (1 + c) / 2];
+    return { type, b0: b[0] / a0, b1: b[1] / a0, b2: b[2] / a0, a1: -2 * c / a0, a2: (1 - alpha) / a0 };
+  }
+  function runBiquad(f, x) {
+    const y = new Float64Array(x.length);
+    let x1 = x[0], x2 = x[0];
+    let y1 = f.type === 'hp' ? 0 : x[0], y2 = y1; // start in steady state to avoid an edge transient
+    for (let i = 0; i < x.length; i++) {
+      const xi = x[i];
+      const yi = f.b0 * xi + f.b1 * x1 + f.b2 * x2 - f.a1 * y1 - f.a2 * y2;
+      x2 = x1; x1 = xi; y2 = y1; y1 = yi; y[i] = yi;
+    }
+    return y;
+  }
+  function filtfilt(f, x) { const y = runBiquad(f, x).reverse(); return runBiquad(f, y).reverse(); }
+  // 0.7–3.5 Hz passband = 42–210 BPM
+  function bandpass(x, fs) {
+    const m = mean(x);
+    let y = Float64Array.from(x, v => v - m);
+    y = filtfilt(biquad('hp', 0.7, fs), y);
+    return filtfilt(biquad('lp', 3.5, fs), y);
+  }
+
+  // Normalised autocorrelation; strongest local maximum in the 40–180 BPM lag range.
+  function autocorr(y, fs) {
+    const n = y.length;
+    const minLag = Math.floor(fs * 60 / 180), maxLag = Math.min(Math.ceil(fs * 60 / 40), n - 3);
+    if (maxLag <= minLag + 1) return null;
+    let e0 = 0; for (let i = 0; i < n; i++) e0 += y[i] * y[i];
+    if (!(e0 > 0)) return null;
+    const r = new Float64Array(maxLag + 2);
+    for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
+      let s = 0; for (let i = 0; i + lag < n; i++) s += y[i] * y[i + lag];
+      r[lag] = (s / e0) * (n / (n - lag));
+    }
+    const maxima = [];
+    for (let lag = minLag; lag <= maxLag; lag++) if (r[lag] > r[lag - 1] && r[lag] >= r[lag + 1]) maxima.push(lag);
+    if (!maxima.length) return null;
+    const top = Math.max(...maxima.map(l => r[l]));
+    // Multiples of the true period score almost as high; take the shortest lag close to the top
+    // score so a fast pulse is not reported at half its rate.
+    let best = maxima.find(l => r[l] >= 0.85 * top);
+    // At low frame rates alternate beats can be sampled off-peak, which makes 2x the period
+    // look strongest. If there is a clear peak at half the lag, prefer it.
+    const half = maxima.find(l => Math.abs(l - best / 2) <= Math.max(2, 0.15 * best / 2) && r[l] > 0.2 && r[l] >= 0.5 * r[best]);
+    if (half) best = half;
+    const bestVal = r[best];
+    const a = r[best - 1], b = r[best], c = r[best + 1], d = a - 2 * b + c;
+    const lag = best + (d !== 0 ? Math.max(-0.5, Math.min(0.5, 0.5 * (a - c) / d)) : 0);
+    return { bpm: 60 * fs / lag, strength: bestVal, period: lag / fs };
+  }
+
+  // Local maxima with a minimum spacing, then a prominence check against the preceding trough.
+  function findPeaks(y, fs, minDist) {
+    const cand = [];
+    for (let i = 1; i < y.length - 1; i++) if (y[i] > y[i - 1] && y[i] >= y[i + 1] && y[i] > 0) cand.push(i);
+    cand.sort((p, q) => y[q] - y[p]);
+    const peaks = [];
+    for (const i of cand) if (peaks.every(p => Math.abs(p - i) >= minDist)) peaks.push(i);
+    peaks.sort((p, q) => p - q);
+    const prom = peaks.map((p, k) => {
+      const s = k ? peaks[k - 1] : Math.max(0, p - fs);
+      let mn = Infinity; for (let j = s; j < p; j++) mn = Math.min(mn, y[j]);
+      return mn === Infinity ? 0 : y[p] - mn;
+    });
+    const medProm = median(prom);
+    return peaks.filter((p, k) => prom[k] >= 0.35 * medProm).map(p => {
+      if (p <= 0 || p >= y.length - 1) return p;
+      const a = y[p - 1], b = y[p], c = y[p + 1], d = a - 2 * b + c;
+      return p + (d !== 0 ? Math.max(-0.5, Math.min(0.5, 0.5 * (a - c) / d)) : 0);
+    });
+  }
+
+  /**
+   * samples: [{t: seconds, v: mean channel brightness}]
+   * opts: {minBeats, minDuration, motionFrac}
+   * Returns {ok, bpm, quality:{score, level(0-2)}, reasons[], ...diagnostics}
+   */
+  function analyze(samples, opts = {}) {
+    const minBeats = opts.minBeats || 8;
+    const res = { ok: false, bpm: null, reasons: [], quality: { score: 0, level: 0 } };
+    if (!samples || samples.length < 20) { res.reasons.push('too_short'); return res; }
+    const dur = samples[samples.length - 1].t - samples[0].t;
+    res.duration = dur;
+    res.fps = (samples.length - 1) / dur;
+    if (dur < (opts.minDuration || 6)) { res.reasons.push('too_short'); return res; }
+    if (res.fps < 10) { res.reasons.push('low_fps'); return res; }
+
+    const raw = resample(samples, FS);
+    // More blood = more absorption = less light, so invert to make systolic peaks point up.
+    let y = bandpass(raw.map(v => -v), FS);
+    y = y.subarray(FS, y.length - FS); // drop 1 s at each edge (filter settling)
+    let ac = autocorr(y, FS);
+    const minSpacing = Math.round(FS * 60 / 180);
+    const goodIbis = peaks => {
+      const ibis = [];
+      for (let i = 1; i < peaks.length; i++) ibis.push((peaks[i] - peaks[i - 1]) / FS);
+      const inRange = ibis.filter(v => v >= 60 / 180 && v <= 60 / 40);
+      const med = median(inRange);
+      return { ibis, med, good: inRange.filter(v => Math.abs(v - med) / med <= 0.25) };
+    };
+
+    // Use the autocorrelation period (when trustworthy) to suppress dicrotic-notch double peaks.
+    let peaks = findPeaks(y, FS, Math.max(minSpacing, ac && ac.strength > 0.3 ? Math.round(0.6 * ac.period * FS) : 0));
+    let { ibis, good } = goodIbis(peaks);
+
+    // Octave guard: if peaks found with only the physiological minimum spacing are regular and
+    // sit at half the autocorrelation period, the true rate is double. (Dicrotic peaks give
+    // alternating short/long gaps, so they fail the regularity test.)
+    if (ac) {
+      const finePeaks = findPeaks(y, FS, minSpacing);
+      const fine = goodIbis(finePeaks);
+      const fineCv = fine.good.length ? std(fine.good) / mean(fine.good) : 1;
+      if (fine.good.length >= minBeats - 1 && Math.abs(fine.med - ac.period / 2) / (ac.period / 2) < 0.15 && fineCv < 0.15
+          && fine.good.length >= 0.8 * fine.ibis.length && ac.bpm * 2 <= 180) {
+        ac = { bpm: ac.bpm * 2, strength: ac.strength, period: ac.period / 2 };
+        peaks = finePeaks; ibis = fine.ibis; good = fine.good;
+        res.octaveCorrected = true;
+      }
+    }
+    res.bpmAC = ac ? ac.bpm : null;
+    res.acStrength = ac ? ac.strength : 0;
+    res.beats = peaks.length;
+    res.validIbis = good.length;
+
+    if (good.length < minBeats - 1) {
+      res.reasons.push(res.acStrength < 0.3 ? 'weak' : 'irregular');
+      return res;
+    }
+    const meanIbi = mean(good);
+    const bpm = 60 / meanIbi;
+    const cv = std(good) / meanIbi;
+    const validFrac = good.length / Math.max(1, ibis.length);
+    const agree = ac ? Math.abs(bpm - ac.bpm) / ac.bpm : 1;
+    const motion = opts.motionFrac || 0;
+    Object.assign(res, { cv, validFrac, agree, motionFrac: motion });
+
+    let score = 35 * clamp01((res.acStrength - 0.2) / 0.5)
+              + 25 * clamp01((0.25 - cv) / 0.17)
+              + 20 * clamp01((0.2 - agree) / 0.15)
+              + 20 * clamp01((validFrac - 0.5) / 0.4)
+              - 30 * clamp01(motion / 0.2);
+    score = Math.round(Math.max(0, Math.min(100, score)));
+    // Thresholds chosen from synthetic stress tests: below 65 the share of >5 BPM errors rose sharply.
+    res.quality = { score, level: score >= 80 ? 2 : score >= 65 ? 1 : 0 };
+    // When the two independent estimators agree, their average is steadier than either alone.
+    res.bpm = Math.round(ac && agree <= 0.15 ? (bpm + ac.bpm) / 2 : bpm);
+
+    if (res.acStrength < 0.3) res.reasons.push('weak');
+    if (cv > 0.2 || validFrac < 0.6) res.reasons.push('irregular');
+    if (agree > 0.15) res.reasons.push('disagree');
+    if (motion > 0.15) res.reasons.push('motion');
+    if (bpm < 40 || bpm > 180) res.reasons.push('out_of_range');
+    // Below 20 fps errors were roughly twice as common, so demand "good" quality there.
+    const needLevel = res.fps < 20 ? 2 : 1;
+    if (res.fps < 20 && res.quality.level < 2) res.reasons.push('low_fps');
+    res.ok = res.quality.level >= needLevel && agree <= 0.15 && bpm >= 40 && bpm <= 180;
+    return res;
+  }
+
+  // Synthetic PPG for demo mode: systolic peak + dicrotic wave, small HRV, drift and noise.
+  function makeSynth(bpm, startT) {
+    const beats = [];
+    let next = startT + 0.2;
+    const ibi = 60 / bpm;
+    return t => {
+      while (t > next) { beats.push(next); if (beats.length > 4) beats.shift(); next += ibi * (1 + (Math.random() - 0.5) * 0.06); }
+      let p = 0;
+      for (const b of beats) {
+        const ph = t - b;
+        p += Math.exp(-((ph - 0.12) ** 2) / (2 * 0.05 ** 2)) + 0.35 * Math.exp(-((ph - 0.38) ** 2) / (2 * 0.07 ** 2));
+      }
+      return 190 - 2.2 * p + 1.5 * Math.sin(2 * Math.PI * 0.22 * t) + (Math.random() - 0.5) * 0.6;
+    };
+  }
+
+  return { analyze, makeSynth, median, FS };
+})();
+/* PPG-CORE-END */
+
+/* ================= PPG controller (camera + UI) ================= */
+const PPG = (() => {
+  const MEASURE_S = 20, DEMO_S = 12, WARMUP_S = 3, HOLD_S = 1, LOST_S = 1.2, LIVE_WIN = 10;
+  const video = $('#ppg-video');
+  const el = {
+    panel: $('#ppg-panel'), preview: $('#ppg-preview'), finger: $('#ppg-finger'),
+    bpm: $('#ppg-bpm'), bpmTag: $('#ppg-bpm-tag'), qbars: $('#ppg-qbars'), qlabel: $('#ppg-qlabel'),
+    status: $('#ppg-status'), progress: $('#ppg-progress'), timer: $('#ppg-timer'), wave: $('#ppg-wave'),
+    start: $('#ppg-start'), stop: $('#ppg-stop'), demo: $('#ppg-demo'), result: $('#ppg-result'),
+    badge: $('#ppg-mode-badge'), flash: $('#ppg-flash')
+  };
+  const sampler = document.createElement('canvas');
+  sampler.width = 48; sampler.height = 36;
+  const sctx = sampler.getContext('2d', { willReadFrequently: true });
+
+  const S = {
+    active: false, mode: 'real', phase: 'idle', token: 0,
+    stream: null, torch: false, rvfc: null, raf: null, lastVT: -1, demoTimer: null, demoTarget: null,
+    fingerSince: null, lostSince: null, warmEnd: 0, warmR: [], channel: 'r', measureStart: 0,
+    samples: [], motion: 0, prevV: null, lastLive: 0, wave: [], emaSlow: null, emaFast: null,
+    lastResult: null, lastStatus: '', lastPct: -1
+  };
+
+  /* ---- UI helpers ---- */
+  function setStatus(msg, isError = false) {
+    if (msg !== S.lastStatus) { el.status.textContent = msg; S.lastStatus = msg; }
+    el.status.classList.toggle('is-error', isError);
+  }
+  function setProgress(frac) {
+    const pct = Math.round(clamp01(frac) * 100);
+    el.progress.firstElementChild.style.width = pct + '%';
+    if (pct !== S.lastPct) { el.progress.setAttribute('aria-valuenow', String(pct)); S.lastPct = pct; }
+  }
+  function setQuality(q) {
+    if (!q) { el.qbars.dataset.level = ''; el.qlabel.textContent = 'คุณภาพสัญญาณ: —'; return; }
+    el.qbars.dataset.level = String(q.level);
+    el.qlabel.textContent = 'คุณภาพสัญญาณ: ' + ['ไม่ดี', 'พอใช้', 'ดี'][q.level];
+  }
+  function setBpm(v, tag, provisional) {
+    el.bpm.textContent = v == null ? '--' : String(v);
+    el.bpm.classList.toggle('provisional', !!provisional);
+    el.bpmTag.textContent = tag;
+  }
+  function setRunning(on) {
+    el.start.disabled = on;
+    el.demo.disabled = on;
+    el.stop.disabled = !on;
+  }
+  function setMode(mode) {
+    S.mode = mode;
+    const demo = mode === 'demo';
+    el.panel.classList.toggle('is-demo', demo);
+    el.preview.classList.toggle('is-demo-glow', false);
+    el.badge.className = 'badge ' + (demo ? 'badge-demo' : 'badge-real');
+    el.badge.textContent = demo ? 'โหมดสาธิต · ข้อมูลจำลอง ไม่ใช่การวัดจริง' : 'โหมดวัดจริง (กล้อง)';
+  }
+  function resetReadout() {
+    setBpm(null, 'ยังไม่มีผล');
+    setQuality(null);
+    setProgress(0);
+    el.timer.textContent = '';
+    el.result.innerHTML = '';
+    S.wave = []; S.emaSlow = null; S.emaFast = null;
+    drawWave();
+  }
+
+  /* ---- Waveform ---- */
+  function pushWave(v) {
+    // Simple display-only filter: remove slow baseline, light smoothing, invert.
+    S.emaSlow = S.emaSlow == null ? v : S.emaSlow + (v - S.emaSlow) / 30;
+    const hp = S.emaSlow - v;
+    S.emaFast = S.emaFast == null ? hp : S.emaFast + (hp - S.emaFast) * 0.45;
+    S.wave.push(S.emaFast);
+    if (S.wave.length > 180) S.wave.shift();
+    if (!pushWave.pending) { pushWave.pending = true; requestAnimationFrame(() => { pushWave.pending = false; drawWave(); }); }
+  }
+  function drawWave() {
+    const c = el.wave, dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth || 300, h = c.clientHeight || 120;
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    g.strokeStyle = '#F0E3CC'; g.lineWidth = 1;
+    for (let y = h / 4; y < h; y += h / 4) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+    const buf = S.wave;
+    if (buf.length < 2) {
+      g.fillStyle = '#674731'; g.font = '600 15px ' + getComputedStyle(document.body).fontFamily;
+      g.textAlign = 'center'; g.fillText('กราฟคลื่นชีพจรจะแสดงที่นี่', w / 2, h / 2 + 5);
+      return;
+    }
+    let mn = Infinity, mx = -Infinity;
+    for (const v of buf) { if (v < mn) mn = v; if (v > mx) mx = v; }
+    const span = Math.max(mx - mn, 1e-6), pad = 10;
+    g.strokeStyle = S.mode === 'demo' ? '#55399A' : '#A9472B';
+    g.lineWidth = 3; g.lineJoin = 'round';
+    g.beginPath();
+    buf.forEach((v, i) => {
+      const x = (i / 179) * w, y = h - pad - ((v - mn) / span) * (h - 2 * pad);
+      i ? g.lineTo(x, y) : g.moveTo(x, y);
+    });
+    g.stroke();
+  }
+  window.addEventListener('resize', drawWave);
+
+  /* ---- Camera ---- */
+  async function tryTorch(track) {
+    try {
+      const caps = track.getCapabilities ? track.getCapabilities() : {};
+      if (!caps || !caps.torch) return false;
+      await track.applyConstraints({ advanced: [{ torch: true }] });
+      return true;
+    } catch (e) { return false; }
+  }
+  function cameraError(code) { const e = new Error(code); e.name = code; return e; }
+  async function openCamera() {
+    if (!window.isSecureContext) throw cameraError('InsecureContext');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw cameraError('Unsupported');
+    const size = { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 30 } };
+    const base = { audio: false, video: Object.assign({ facingMode: { ideal: 'environment' } }, size) };
+    let stream = await navigator.mediaDevices.getUserMedia(base);
+    let track = stream.getVideoTracks()[0];
+    let torch = await tryTorch(track);
+    if (!torch) {
+      // Phones with several rear lenses may expose the torch on only one of them.
+      try {
+        const current = track.getSettings ? track.getSettings().deviceId : null;
+        const devs = (await navigator.mediaDevices.enumerateDevices())
+          .filter(d => d.kind === 'videoinput' && d.deviceId && d.deviceId !== current && /back|rear|environment|หลัง/i.test(d.label));
+        for (const d of devs.slice(0, 3)) {
+          stream.getTracks().forEach(t => t.stop());
+          let s2;
+          try { s2 = await navigator.mediaDevices.getUserMedia({ audio: false, video: Object.assign({ deviceId: { exact: d.deviceId } }, size) }); }
+          catch (e) { continue; }
+          const t2 = s2.getVideoTracks()[0];
+          if (await tryTorch(t2)) { stream = s2; track = t2; torch = true; break; }
+          s2.getTracks().forEach(t => t.stop());
+        }
+        if (!torch && track.readyState === 'ended') {
+          stream = await navigator.mediaDevices.getUserMedia(base);
+          track = stream.getVideoTracks()[0];
+        }
+      } catch (e) { /* keep the first camera */ }
+    }
+    return { stream, torch };
+  }
+
+  function readFrame() {
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (!vw || !vh) return null;
+    const cw = vw * 0.5, ch = vh * 0.5; // centre crop
+    sctx.drawImage(video, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, sampler.width, sampler.height);
+    const d = sctx.getImageData(0, 0, sampler.width, sampler.height).data;
+    let r = 0, g = 0, b = 0, r2 = 0;
+    const n = d.length / 4;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; r2 += d[i] * d[i]; }
+    r /= n; g /= n; b /= n;
+    const sd = Math.sqrt(Math.max(0, r2 / n - r * r));
+    return { r, g, b, cv: sd / (r + 1e-6) };
+  }
+
+  function scheduleFrame() {
+    if (!S.active || S.mode !== 'real') return;
+    if (typeof video.requestVideoFrameCallback === 'function') {
+      S.rvfc = video.requestVideoFrameCallback((now, meta) => {
+        S.rvfc = null;
+        if (!S.active) return;
+        const st = readFrame();
+        if (st) ingest(((meta && meta.captureTime) || now) / 1000, st);
+        scheduleFrame();
+      });
+    } else {
+      S.raf = requestAnimationFrame(() => {
+        S.raf = null;
+        if (!S.active) return;
+        if (video.currentTime !== S.lastVT) {
+          S.lastVT = video.currentTime;
+          const st = readFrame();
+          if (st) ingest(performance.now() / 1000, st);
+        }
+        scheduleFrame();
+      });
+    }
+  }
+
+  /* ---- Measurement state machine (shared by real and demo modes) ---- */
+  function fingerState(st) {
+    const sum = st.r + st.g + st.b + 1e-6;
+    if (st.r / sum >= 0.45 && st.cv <= 0.35 && st.r >= 40) return 'on';
+    if (st.cv <= 0.35 && st.r < 40) return 'dark';
+    return 'off';
+  }
+  function ingest(t, st) {
+    const fs = fingerState(st);
+    const on = fs === 'on';
+    el.preview.classList.toggle('finger-on', on);
+    el.finger.textContent = on ? 'พบนิ้ว ✓' : 'ยังไม่พบนิ้ว';
+
+    if (S.phase === 'waiting') {
+      if (on) {
+        if (S.fingerSince == null) S.fingerSince = t;
+        setStatus('พบนิ้วแล้ว อยู่นิ่งๆ นะคะ…');
+        if (t - S.fingerSince >= HOLD_S) beginWarmup(t);
+      } else {
+        S.fingerSince = null;
+        setStatus(fs === 'dark'
+          ? 'ภาพมืดเกินไป ถ้าไม่มีไฟแฟลช ให้ไปที่สว่าง หรือหันกล้องเข้าหาแสงไฟ'
+          : (S.torch ? 'วางปลายนิ้วชี้ปิดกล้องหลังและไฟแฟลชให้มิด กดเบาๆ' : 'วางปลายนิ้วชี้ปิดกล้องให้มิด กดเบาๆ และอยู่ในที่สว่าง'));
+      }
+      return;
+    }
+    if (S.phase !== 'warmup' && S.phase !== 'measuring') return;
+
+    if (!on) {
+      if (S.lostSince == null) S.lostSince = t;
+      if (t - S.lostSince >= LOST_S) backToWaiting('นิ้วหลุดออกจากกล้องหรือขยับมาก ระบบจะเริ่มนับใหม่ — วางนิ้วกลับให้มิดค่ะ');
+      return;
+    }
+    S.lostSince = null;
+
+    if (S.phase === 'warmup') {
+      S.warmR.push(st.r);
+      el.timer.textContent = 'กำลังปรับแสง…';
+      if (t >= S.warmEnd) {
+        // Red often saturates under the flash; fall back to green when it does.
+        S.channel = PPGCore.median(S.warmR) >= 235 ? 'g' : 'r';
+        S.phase = 'measuring';
+        S.measureStart = t; S.samples = []; S.motion = 0; S.prevV = null; S.lastLive = t;
+        setStatus('กำลังวัด… อยู่นิ่งๆ หายใจตามปกติ');
+      }
+      return;
+    }
+
+    const v = S.channel === 'g' ? st.g : st.r;
+    if (S.prevV != null && Math.abs(v - S.prevV) / Math.max(1, S.prevV) > 0.05) S.motion++;
+    S.prevV = v;
+    S.samples.push({ t, v });
+    pushWave(v);
+    const total = S.mode === 'demo' ? DEMO_S : MEASURE_S;
+    const elapsed = t - S.measureStart;
+    setProgress(elapsed / total);
+    el.timer.textContent = `เหลืออีกประมาณ ${Math.max(0, Math.ceil(total - elapsed))} วินาที`;
+    if (elapsed >= 6 && t - S.lastLive >= 1) { S.lastLive = t; liveEstimate(); }
+    if (elapsed >= total) finish();
+  }
+  function beginWarmup(t) {
+    S.phase = 'warmup';
+    S.warmEnd = t + (S.mode === 'demo' ? 0.5 : WARMUP_S);
+    S.warmR = [];
+    setStatus('พบนิ้วแล้ว กำลังปรับแสง… กรุณาอยู่นิ่งๆ');
+  }
+  function backToWaiting(msg) {
+    S.phase = 'waiting';
+    S.fingerSince = null; S.lostSince = null; S.samples = [];
+    S.wave = []; S.emaSlow = null; S.emaFast = null;
+    setProgress(0); setBpm(null, 'รอวางนิ้ว'); setQuality(null);
+    el.timer.textContent = '';
+    setStatus(msg, true);
+    drawWave();
+  }
+  function liveEstimate() {
+    const now = S.samples[S.samples.length - 1].t;
+    const win = S.samples.filter(s => s.t >= now - LIVE_WIN);
+    const r = PPGCore.analyze(win, { minBeats: 4, minDuration: 5, motionFrac: S.motion / Math.max(1, S.samples.length) });
+    setQuality(r.bpm != null ? r.quality : { level: 0 });
+    if (r.ok) setBpm(r.bpm, 'ค่าชั่วคราว กำลังวัดต่อ…', true);
+    else setBpm(null, 'กำลังหาจังหวะชีพจร…');
+  }
+
+  function finish() {
+    const mode = S.mode, target = S.demoTarget, torch = S.torch, channel = S.channel;
+    const total = mode === 'demo' ? DEMO_S : MEASURE_S;
+    const res = PPGCore.analyze(S.samples, { minBeats: 8, minDuration: total * 0.8, motionFrac: S.motion / Math.max(1, S.samples.length) });
+    stopAll();
+    S.phase = 'done';
+    setProgress(1);
+    el.timer.textContent = '';
+    el.start.querySelector('.lbl').textContent = 'วัดใหม่';
+    if (res.ok) {
+      S.lastResult = { bpm: res.bpm, quality: res.quality.level, mode, time: new Date() };
+      setBpm(res.bpm, mode === 'demo' ? 'ข้อมูลจำลอง' : 'ค่าประมาณ (ยังไม่ผ่านการตรวจสอบความแม่นยำ)');
+      setQuality(res.quality);
+      setStatus(mode === 'demo' ? 'สาธิตเสร็จแล้ว (ข้อมูลจำลอง)' : 'วัดเสร็จแล้ว');
+      renderSuccess(res, mode, target, torch, channel);
+      Mascot.express('excited', 2500);
+    } else {
+      S.lastResult = null;
+      setBpm(null, 'วัดไม่สำเร็จ');
+      setQuality(res.bpm != null ? res.quality : { level: 0 });
+      setStatus('สัญญาณไม่ชัดพอ จึงไม่แสดงตัวเลข เพื่อไม่ให้เข้าใจผิด', true);
+      renderFailure(res);
+      Mascot.express('curious', 2500);
+    }
+    el.result.focus({ preventScroll: true });
+    el.result.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+
+  const REASON_TEXT = {
+    too_short: 'ข้อมูลไม่พอ (ช่วงที่วางนิ้วนิ่งสั้นเกินไป)',
+    low_fps: 'กล้องส่งภาพได้ช้าเกินไป (อัตราเฟรมต่ำ) ลองปิดแอปอื่น หรือใช้อุปกรณ์อื่น',
+    weak: 'สัญญาณชีพจรอ่อนหรือไม่ชัด ลองกดนิ้วเบาลง ให้ปิดกล้องมิด และอยู่ในที่สว่างขึ้น',
+    irregular: 'ช่วงห่างของจังหวะไม่สม่ำเสมอ มักเกิดจากการขยับหรือแสงรบกวน',
+    disagree: 'วิธีคำนวณสองแบบให้ผลไม่ตรงกัน ระบบจึงไม่มั่นใจในตัวเลข',
+    motion: 'ตรวจพบการขยับหรือแสงเปลี่ยนบ่อย วางมือบนโต๊ะแล้วอยู่นิ่งๆ',
+    out_of_range: 'ค่าที่คำนวณได้อยู่นอกช่วงที่ระบบรองรับ (40–180 ครั้ง/นาที)'
+  };
+
+  function renderSuccess(res, mode, target, torch, channel) {
+    const qText = ['ไม่ดี', 'พอใช้', 'ดี'][res.quality.level];
+    const fps = res.fps ? res.fps.toFixed(0) : '–';
+    let html;
+    if (mode === 'demo') {
+      html = `<div class="result-card is-demo">
+        <span class="badge badge-demo">ข้อมูลจำลอง — ไม่ใช่การวัดจริง</span>
+        <p style="margin-top:.6rem"><span class="bpm-num" style="color:var(--demo)">${res.bpm}</span> <span class="bpm-unit">ครั้ง/นาที (จากสัญญาณจำลอง)</span></p>
+        <p>โหมดสาธิตสร้างคลื่นชีพจรปลอมที่ตั้งไว้ <strong>${target} ครั้ง/นาที</strong> แล้วส่งผ่านอัลกอริทึมเดียวกับการวัดจริง ระบบคำนวณได้ <strong>${res.bpm}</strong> (คุณภาพสัญญาณ: ${qText})</p>
+        <p class="small"><strong>ตัวเลขนี้ไม่ใช่ชีพจรของคุณ</strong> ใช้เพื่อสาธิตการทำงานของระบบเท่านั้น</p>
+        <div class="btn-row"><button class="btn btn-demo" type="button" data-ppg="demo">สาธิตอีกครั้ง</button><button class="btn" type="button" data-ppg="start">ลองวัดจริงด้วยกล้อง</button></div>
+      </div>`;
+    } else {
+      const outside = res.bpm < 60 || res.bpm > 100;
+      html = `<div class="result-card">
+        <span class="badge badge-real">วัดจากกล้องจริง · ค่าประมาณ</span>
+        <p style="margin-top:.6rem"><span class="bpm-num">${res.bpm}</span> <span class="bpm-unit">ครั้ง/นาที</span></p>
+        <p>คุณภาพสัญญาณ: <strong>${qText}</strong> (คะแนน ${res.quality.score}/100) · อัตราเฟรม ${fps} ภาพ/วินาที · ไฟแฟลช: ${torch ? 'เปิด' : 'ไม่ได้ใช้'} · ช่องสี: ${channel === 'g' ? 'เขียว' : 'แดง'}</p>
+        <p class="small">โดยทั่วไป อัตราชีพจรขณะพักของผู้ใหญ่อยู่ที่ประมาณ 60–100 ครั้ง/นาที ${outside
+          ? '<strong>ค่าประมาณครั้งนี้อยู่นอกช่วงดังกล่าว</strong> ซึ่งอาจเกิดจากความคลาดเคลื่อนของการวัด การเพิ่งออกแรง หรือปัจจัยอื่น ลองนั่งพัก 5 นาทีแล้ววัดใหม่ หากวัดด้วยเครื่องมือมาตรฐานแล้วยังผิดปกติ หรือมีอาการ เช่น เจ็บหน้าอก หน้ามืด ใจสั่น หายใจลำบาก ควรพบแพทย์ (ฉุกเฉินโทร 1669)'
+          : 'ค่านี้เป็นเพียงค่าประมาณจากต้นแบบที่ยังไม่ผ่านการตรวจสอบความแม่นยำ ไม่ควรใช้ตัดสินใจทางการแพทย์'}</p>
+        <div class="btn-row"><button class="btn" type="button" data-ppg="start">วัดใหม่</button><button class="btn btn-ghost" type="button" data-ppg="speak">🔊 อ่านผล</button></div>
+      </div>`;
+    }
+    el.result.innerHTML = html;
+  }
+  function renderFailure(res) {
+    const reasons = (res.reasons.length ? res.reasons : ['weak']).map(r => `<li>${esc(REASON_TEXT[r] || r)}</li>`).join('');
+    el.result.innerHTML = `<div class="result-card is-fail">
+      <h3>วัดไม่สำเร็จ</h3>
+      <p>ระบบ<strong>ไม่แสดงตัวเลข</strong>เพราะสัญญาณไม่ชัดพอ สาเหตุที่เป็นไปได้:</p>
+      <ul>${reasons}</ul>
+      <p class="small">เคล็ดลับ: นั่งนิ่ง วางมือบนโต๊ะ ใช้ปลายนิ้วปิดกล้องและแฟลชให้มิดแต่กดเบาๆ ถ้ามือเย็นให้ถูมือให้อุ่นก่อน</p>
+      <div class="btn-row"><button class="btn" type="button" data-ppg="start">ลองวัดใหม่</button><button class="btn btn-demo" type="button" data-ppg="demo">ดูโหมดสาธิต</button></div>
+    </div>`;
+  }
+  function renderCameraError(err) {
+    const name = (err && err.name) || 'Error';
+    let title = 'เปิดกล้องไม่สำเร็จ', body = '';
+    if (name === 'InsecureContext') {
+      body = 'เบราว์เซอร์อนุญาตให้ใช้กล้องเฉพาะเว็บที่เปิดผ่าน <strong>HTTPS</strong> หรือ localhost เท่านั้น ให้เปิดแอปนี้จากลิงก์ https:// (เช่น GitHub Pages) แล้วลองใหม่';
+    } else if (name === 'Unsupported') {
+      body = 'เบราว์เซอร์นี้ไม่รองรับการใช้กล้อง ลองใช้ Chrome (Android) หรือ Safari (iPhone) รุ่นล่าสุด';
+    } else if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
+      title = 'ไม่ได้รับอนุญาตให้ใช้กล้อง';
+      body = 'คุณไม่ได้อนุญาตให้ใช้กล้อง หรือเคยกดปฏิเสธไว้ วิธีแก้: กดไอคอน <strong>แม่กุญแจ / การตั้งค่าเว็บไซต์</strong> ข้างแถบที่อยู่ เลือก “กล้อง” → “อนุญาต” แล้วโหลดหน้าใหม่ หรือใช้โหมดสาธิตแทน';
+    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
+      title = 'ไม่พบกล้อง';
+      body = 'ไม่พบกล้องที่ใช้งานได้ในอุปกรณ์นี้ ลองใช้สมาร์ทโฟนที่มีกล้องหลัง หรือใช้โหมดสาธิต';
+    } else if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') {
+      body = 'กล้องอาจถูกใช้งานโดยแอปอื่นอยู่ ปิดแอปกล้อง/วิดีโอคอลอื่นแล้วลองใหม่';
+    } else {
+      body = 'เกิดข้อผิดพลาดที่ไม่คาดคิด (' + esc(name) + ') ลองโหลดหน้าใหม่ หรือใช้โหมดสาธิต';
+    }
+    setStatus(title, true);
+    el.finger.textContent = 'กล้องไม่ทำงาน';
+    el.result.innerHTML = `<div class="result-card is-fail" role="alert">
+      <h3>${title}</h3><p>${body}</p>
+      <div class="btn-row"><button class="btn" type="button" data-ppg="start">ลองอีกครั้ง</button><button class="btn btn-demo" type="button" data-ppg="demo">ใช้โหมดสาธิต (ข้อมูลจำลอง)</button></div>
+    </div>`;
+  }
+
+  /* ---- Start / stop ---- */
+  async function startReal() {
+    if (S.active) return;
+    Speech.stop();
+    resetReadout();
+    setMode('real');
+    setRunning(true);
+    const my = ++S.token;
+    S.active = true; S.phase = 'starting';
+    setStatus('กำลังขอสิทธิ์ใช้กล้อง… กรุณากด “อนุญาต”');
+    el.finger.textContent = 'กำลังเปิดกล้อง…';
+    try {
+      const cam = await openCamera();
+      if (my !== S.token) { cam.stream.getTracks().forEach(t => t.stop()); return; } // stopped while waiting
+      S.stream = cam.stream; S.torch = cam.torch;
+      video.srcObject = cam.stream;
+      try { await video.play(); } catch (e) { /* autoplay with muted+playsinline normally succeeds */ }
+      el.flash.textContent = cam.torch ? 'ไฟแฟลช: เปิดแล้ว' : 'ไฟแฟลช: เปิดผ่านเบราว์เซอร์ไม่ได้ (ใช้แสงรอบข้าง)';
+      S.phase = 'waiting'; S.fingerSince = null; S.lostSince = null;
+      setStatus(cam.torch ? 'วางปลายนิ้วชี้ปิดกล้องหลังและไฟแฟลชให้มิด กดเบาๆ' : 'อุปกรณ์นี้เปิดไฟแฟลชผ่านเบราว์เซอร์ไม่ได้ วางปลายนิ้วปิดกล้องให้มิด และอยู่ในที่สว่าง');
+      scheduleFrame();
+    } catch (err) {
+      if (my !== S.token) return;
+      stopAll();
+      S.phase = 'idle';
+      renderCameraError(err);
+    }
+  }
+  function startDemo() {
+    if (S.active) stopAll();
+    Speech.stop();
+    resetReadout();
+    setMode('demo');
+    setRunning(true);
+    S.token++;
+    S.active = true; S.phase = 'waiting'; S.fingerSince = null; S.lostSince = null; S.torch = false;
+    el.preview.classList.add('is-demo-glow');
+    el.flash.textContent = 'ไม่ได้ใช้กล้อง';
+    S.demoTarget = 62 + Math.round(Math.random() * 24);
+    const gen = PPGCore.makeSynth(S.demoTarget, performance.now() / 1000);
+    setStatus('โหมดสาธิต: กำลังสร้างสัญญาณจำลอง (ไม่ได้ใช้กล้อง)');
+    S.demoTimer = setInterval(() => {
+      const t = performance.now() / 1000;
+      ingest(t, { r: gen(t), g: 40, b: 30, cv: 0.05 });
+    }, 1000 / 30);
+  }
+  function stopAll() {
+    S.active = false;
+    S.token++;
+    if (S.rvfc != null && typeof video.cancelVideoFrameCallback === 'function') video.cancelVideoFrameCallback(S.rvfc);
+    if (S.raf != null) cancelAnimationFrame(S.raf);
+    S.rvfc = null; S.raf = null;
+    clearInterval(S.demoTimer); S.demoTimer = null;
+    if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+    S.stream = null;
+    video.srcObject = null;
+    el.preview.classList.remove('finger-on', 'is-demo-glow');
+    el.finger.textContent = 'กล้องปิดแล้ว';
+    setRunning(false);
+  }
+  function userStop(msg) {
+    if (!S.active) return;
+    stopAll();
+    S.phase = 'idle';
+    setProgress(0);
+    el.timer.textContent = '';
+    setBpm(null, 'หยุดการวัดแล้ว');
+    setStatus(msg || 'หยุดการวัดแล้ว กด “เริ่มวัด” เพื่อวัดใหม่');
+  }
+
+  el.start.addEventListener('click', startReal);
+  el.demo.addEventListener('click', startDemo);
+  el.stop.addEventListener('click', () => userStop());
+  el.result.addEventListener('click', e => {
+    const b = e.target.closest('[data-ppg]');
+    if (!b) return;
+    const act = b.dataset.ppg;
+    if (act === 'start') startReal();
+    else if (act === 'demo') startDemo();
+    else if (act === 'speak' && S.lastResult) {
+      Speech.speak(`ค่าประมาณชีพจรของคุณคือ ${S.lastResult.bpm} ครั้งต่อนาที คุณภาพสัญญาณ${['ไม่ดี', 'พอใช้', 'ดี'][S.lastResult.quality]} ค่านี้เป็นค่าประมาณจากต้นแบบ ยังไม่ผ่านการตรวจสอบความแม่นยำ ไม่ใช่เครื่องมือแพทย์ค่ะ`);
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && S.active) userStop('หยุดการวัดแล้ว เพราะสลับไปหน้าจออื่น กด “เริ่มวัด” เพื่อวัดใหม่');
+  });
+  window.addEventListener('pagehide', () => { if (S.active) stopAll(); });
+  drawWave();
+
+  return { getLast: () => S.lastResult };
+})();
+
+/* ================= PPG validation table ================= */
+(function initValidation() {
+  const rows = [];
+  const input = $('#ref-bpm'), err = $('#ref-error'), body = $('#pairs-body');
+  const fmtTime = d => d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const qText = l => ['ไม่ดี', 'พอใช้', 'ดี'][l];
+
+  function render() {
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="7" class="muted">ยังไม่มีข้อมูล</td></tr>';
+    } else {
+      body.innerHTML = rows.map((r, i) => `<tr><td>${i + 1}</td><td>${fmtTime(r.time)}</td><td>${r.mode === 'demo' ? '<span class="st st-sim">จำลอง</span>' : 'จริง'}</td>
+        <td class="num">${r.app}</td><td class="num">${r.ref}</td><td class="num">${r.err}</td><td>${qText(r.quality)}</td></tr>`).join('');
+    }
+    const real = rows.filter(r => r.mode !== 'demo');
+    $('#mae-cell').textContent = real.length ? (real.reduce((s, r) => s + r.err, 0) / real.length).toFixed(2) : '—';
+    $('#mae-n').textContent = 'n = ' + real.length;
+  }
+  function setErr(msg) {
+    err.textContent = msg;
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  $('#btn-save-pair').addEventListener('click', () => {
+    const last = PPG.getLast();
+    const ref = Number(input.value);
+    if (!last) { setErr('ยังไม่มีผลการวัดที่สำเร็จ กรุณาวัดให้สำเร็จก่อน'); return; }
+    if (!input.value || !Number.isInteger(ref) || ref < 30 || ref > 220) { setErr('กรุณากรอกค่าอ้างอิงเป็นจำนวนเต็มระหว่าง 30–220'); input.focus(); return; }
+    setErr('');
+    rows.push({ time: last.time, mode: last.mode, app: last.bpm, ref, err: Math.abs(last.bpm - ref), quality: last.quality });
+    input.value = '';
+    render();
+    toast(last.mode === 'demo' ? 'บันทึกแล้ว (แถวข้อมูลจำลอง ไม่นำไปคิด MAE)' : 'บันทึกคู่ค่าแล้ว', 'info', 3000);
+  });
+  $('#btn-clear-pairs').addEventListener('click', () => {
+    if (!rows.length) return;
+    if (!confirm('ล้างข้อมูลในตารางทั้งหมด?')) return;
+    rows.length = 0;
+    render();
+  });
+  $('#btn-export').addEventListener('click', () => {
+    if (!rows.length) { toast('ยังไม่มีข้อมูลให้ดาวน์โหลด', 'warn', 3000); return; }
+    const head = ['no', 'time', 'type', 'app_bpm', 'reference_bpm', 'abs_error_bpm', 'signal_quality'];
+    const lines = [head.join(',')].concat(rows.map((r, i) =>
+      [i + 1, r.time.toISOString(), r.mode === 'demo' ? 'simulated' : 'real', r.app, r.ref, r.err, ['poor', 'fair', 'good'][r.quality]].join(',')));
+    const real = rows.filter(r => r.mode !== 'demo');
+    lines.push('', 'MAE_real_only,' + (real.length ? (real.reduce((s, r) => s + r.err, 0) / real.length).toFixed(2) : '') + ',n=' + real.length);
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sookjai-ppg-validation.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  render();
+})();
+
+/* ================= Symptom checker (rule-based) ================= */
+/* SYMPTOM-CORE-START */
+const SymptomCore = (() => {
+  const SYMPTOMS = [
+    { id: 'headache', icon: '🤕', label: 'ปวดศีรษะ', kw: ['ปวดหัว', 'ปวดศีรษะ', 'ปวดศรีษะ', 'ไมเกรน', 'ปวดขมับ'], base: 0,
+      care: ['พักผ่อนในที่เงียบ แสงไม่จ้า', 'ดื่มน้ำให้เพียงพอ', 'พักสายตาจากหน้าจอ', 'นอนหลับให้เพียงพอ'],
+      warn: ['ปวดรุนแรงเฉียบพลัน แบบที่ไม่เคยเป็นมาก่อน', 'ปวดร่วมกับไข้และคอแข็ง', 'ปวดร่วมกับหน้าเบี้ยว พูดไม่ชัด แขนขาอ่อนแรง หรือตามัว', 'ปวดหลังศีรษะถูกกระแทก'],
+      seek: ['ปวดบ่อยขึ้นหรือรุนแรงขึ้นเรื่อยๆ', 'ไม่ดีขึ้นภายใน 2–3 วัน'] },
+    { id: 'fever', icon: '🌡️', label: 'มีไข้ ตัวร้อน', kw: ['ไข้', 'ตัวร้อน', 'ตัวรุมๆ', 'ครั่นเนื้อครั่นตัว'], base: 0,
+      care: ['พักผ่อนมากๆ และดื่มน้ำบ่อยๆ', 'เช็ดตัวด้วยน้ำอุณหภูมิห้อง', 'สวมเสื้อผ้าโปร่ง สบาย', 'วัดอุณหภูมิเป็นระยะ และจดไว้'],
+      warn: ['ซึม สับสน หรือชัก', 'คอแข็ง', 'มีจุดเลือดออกหรือผื่นตามตัว', 'หายใจลำบาก'],
+      seek: ['ไข้ไม่ลดภายใน 3 วัน', 'เป็นผู้สูงอายุ เด็กเล็ก ผู้ตั้งครรภ์ หรือมีโรคประจำตัว'] },
+    { id: 'cough', icon: '😷', label: 'ไอ', kw: ['ไอ', 'มีเสมหะ'], base: 0,
+      care: ['จิบน้ำอุ่นบ่อยๆ', 'หลีกเลี่ยงควัน ฝุ่น และอากาศเย็นจัด', 'สวมหน้ากากอนามัยเพื่อลดการแพร่เชื้อ', 'พักผ่อนให้เพียงพอ'],
+      warn: ['ไอเป็นเลือด', 'หายใจเหนื่อยหอบ', 'เจ็บหน้าอก', 'ไข้สูง'],
+      seek: ['ไอนานเกิน 2 สัปดาห์', 'น้ำหนักลดโดยไม่ทราบสาเหตุ หรือเหงื่อออกมากตอนกลางคืน'] },
+    { id: 'sorethroat', icon: '🗣️', label: 'เจ็บคอ', kw: ['เจ็บคอ', 'ระคายคอ', 'กลืนเจ็บ', 'คอแห้ง'], base: 0,
+      care: ['กลั้วคอด้วยน้ำเกลืออุ่นๆ', 'ดื่มน้ำบ่อยๆ', 'พักการใช้เสียง'],
+      warn: ['กลืนลำบากมากจนกลืนน้ำลายไม่ได้', 'น้ำลายไหลยืด อ้าปากได้น้อย', 'หายใจลำบาก'],
+      seek: ['มีไข้สูงร่วมด้วย', 'ไม่ดีขึ้นภายใน 3 วัน'] },
+    { id: 'runnynose', icon: '🤧', label: 'น้ำมูก คัดจมูก', kw: ['น้ำมูก', 'คัดจมูก', 'จาม', 'จมูกตัน'], base: 0,
+      care: ['ล้างจมูกด้วยน้ำเกลือ', 'ดื่มน้ำและพักผ่อน', 'หลีกเลี่ยงฝุ่น ควัน และสิ่งที่ทำให้แพ้'],
+      warn: ['ปวดบริเวณใบหน้าหรือโหนกแก้มมาก ร่วมกับไข้', 'มีเลือดกำเดาไหลบ่อยหรือไหลไม่หยุด'],
+      seek: ['เป็นนานเกิน 10 วัน', 'อาการแย่ลงหลังจากเริ่มดีขึ้นแล้ว'] },
+    { id: 'dizziness', icon: '😵‍💫', label: 'เวียนศีรษะ หน้ามืด', kw: ['เวียนหัว', 'เวียนศีรษะ', 'มึนหัว', 'บ้านหมุน', 'หน้ามืด'], base: 0,
+      care: ['นั่งหรือนอนพักทันที เพื่อป้องกันการหกล้ม', 'ลุกขึ้นช้าๆ', 'ดื่มน้ำ', 'งดขับรถหรือทำงานบนที่สูง'],
+      warn: ['ร่วมกับหน้าเบี้ยว พูดไม่ชัด แขนขาอ่อนแรง', 'ร่วมกับเจ็บหน้าอก ใจสั่น', 'หมดสติ', 'มองเห็นภาพซ้อน เดินเซ'],
+      seek: ['เป็นซ้ำบ่อย', 'เคยหกล้มจากอาการนี้'] },
+    { id: 'nausea', icon: '🤢', label: 'คลื่นไส้ อาเจียน', kw: ['คลื่นไส้', 'อาเจียน', 'อ้วก', 'พะอืดพะอม'], base: 0,
+      care: ['จิบน้ำหรือสารละลายเกลือแร่ (ORS) ทีละน้อยแต่บ่อยครั้ง', 'กินอาหารอ่อน ย่อยง่าย ทีละน้อย', 'พักผ่อน'],
+      warn: ['อาเจียนเป็นเลือดหรือสีน้ำตาลคล้ำ', 'อาเจียนต่อเนื่องจนดื่มน้ำไม่ได้', 'ปัสสาวะน้อย ปากแห้งมาก ซึม', 'ปวดท้องรุนแรง'],
+      seek: ['อาเจียนนานเกิน 24 ชั่วโมง', 'เป็นผู้สูงอายุ เด็กเล็ก หรือผู้ตั้งครรภ์'] },
+    { id: 'fatigue', icon: '🥱', label: 'อ่อนเพลีย เหนื่อยง่าย', kw: ['อ่อนเพลีย', 'เพลีย', 'เหนื่อยง่าย', 'ไม่มีแรง', 'เหนื่อย'], base: 0,
+      care: ['นอนหลับให้เพียงพอ', 'กินอาหารครบหมู่และดื่มน้ำ', 'ขยับร่างกายเบาๆ ตามที่ไหว'],
+      warn: ['ร่วมกับเจ็บหน้าอกหรือหายใจลำบาก', 'ใจสั่น หน้ามืด หรือเป็นลม'],
+      seek: ['อ่อนเพลียนานเกิน 2 สัปดาห์', 'น้ำหนักลด ซีด หรือเบื่ออาหารมาก'] },
+    { id: 'abdominal', icon: '🫃', label: 'ปวดท้อง', kw: ['ปวดท้อง', 'เจ็บท้อง', 'จุกท้อง', 'แน่นท้อง', 'ท้องอืด'], base: 0,
+      care: ['พักผ่อน กินอาหารอ่อน', 'งดอาหารรสจัด มัน และแอลกอฮอล์', 'สังเกตตำแหน่งและลักษณะของอาการปวด'],
+      warn: ['ปวดรุนแรงมาก หรือปวดเฉียบพลัน', 'ท้องแข็ง กดเจ็บมาก', 'ถ่ายเป็นเลือดหรือถ่ายดำ', 'ปวดท้องขณะตั้งครรภ์'],
+      seek: ['ปวดต่อเนื่องหรือมากขึ้นเรื่อยๆ', 'ปวดร่วมกับไข้หรืออาเจียน'] },
+    { id: 'diarrhea', icon: '🚽', label: 'ท้องเสีย', kw: ['ท้องเสีย', 'ท้องร่วง', 'ถ่ายเหลว', 'ถ่ายเป็นน้ำ'], base: 0,
+      care: ['จิบสารละลายเกลือแร่ (ORS) ทีละน้อยแต่บ่อยครั้ง', 'กินอาหารสุก สะอาด ย่อยง่าย', 'ล้างมือบ่อยๆ'],
+      warn: ['ถ่ายเป็นเลือด', 'ถ่ายเป็นน้ำปริมาณมาก ปัสสาวะน้อย ซึม', 'ไข้สูง'],
+      seek: ['ไม่ดีขึ้นภายใน 2 วัน', 'เป็นผู้สูงอายุหรือเด็กเล็ก'] },
+    { id: 'rash', icon: '🩹', label: 'ผื่น คัน', kw: ['ผื่น', 'ลมพิษ', 'คัน'], base: 0,
+      care: ['หลีกเลี่ยงการเกา', 'หลีกเลี่ยงสิ่งที่สงสัยว่าแพ้', 'สวมเสื้อผ้าโปร่ง ระบายอากาศดี'],
+      warn: ['ผื่นร่วมกับหน้า ปาก หรือคอบวม หายใจลำบาก', 'ผื่นพุพอง ผิวลอก เจ็บ หรือลามเร็ว', 'มีจุดเลือดออกร่วมกับไข้'],
+      seek: ['ผื่นเกิดหลังเริ่มใช้ยาใหม่ (ปรึกษาแพทย์หรือเภสัชกรโดยเร็ว)', 'ไม่ดีขึ้นภายในไม่กี่วัน'] },
+    { id: 'breathing', icon: '🫁', label: 'หายใจลำบาก หอบเหนื่อย', kw: ['หายใจลำบาก', 'หายใจไม่ออก', 'หายใจไม่ทัน', 'หายใจไม่อิ่ม', 'หายใจเหนื่อย', 'หอบ'], base: 3, urgent: true,
+      baseReason: 'หายใจลำบาก อาจเป็นภาวะที่ต้องได้รับการช่วยเหลือเร่งด่วน',
+      care: ['นั่งพักในท่าลำตัวตั้งตรง ให้หายใจสะดวก', 'คลายเสื้อผ้าให้หลวม', 'ถ้ามียาที่แพทย์สั่งไว้สำหรับอาการนี้ ให้ใช้ตามที่แพทย์แนะนำ'],
+      warn: ['พูดไม่เป็นประโยค', 'ริมฝีปากหรือเล็บเขียวคล้ำ', 'ซึม สับสน'],
+      seek: ['ควรได้รับการประเมินทันที หากรุนแรงโทร 1669'] },
+    { id: 'chestpain', icon: '💔', label: 'เจ็บหรือแน่นหน้าอก', kw: ['เจ็บหน้าอก', 'แน่นหน้าอก', 'เจ็บอก', 'ปวดหน้าอก', 'จุกอก', 'แน่นอก'], base: 3, urgent: true,
+      baseReason: 'เจ็บหรือแน่นหน้าอก อาจเป็นสัญญาณของภาวะฉุกเฉินเกี่ยวกับหัวใจหรือปอด',
+      care: ['หยุดกิจกรรมทันที นั่งหรือนอนพัก', 'โทร 1669 อย่าขับรถไปโรงพยาบาลเอง', 'อยู่กับผู้อื่น อย่าอยู่คนเดียว'],
+      warn: ['เจ็บแน่นเหมือนมีของหนักทับ', 'ร้าวไปแขน กราม คอ หรือหลัง', 'เหงื่อแตก ใจสั่น หายใจไม่อิ่ม'],
+      seek: ['ควรได้รับการประเมินทันที โทร 1669'] },
+    { id: 'weakness', icon: '🦾', label: 'แขนหรือขาอ่อนแรงทันที', kw: ['แขนขาอ่อนแรง', 'แขนอ่อนแรง', 'ขาอ่อนแรง', 'อ่อนแรงครึ่งซีก', 'ชาครึ่งซีก', 'ยกแขนไม่ขึ้น', 'ขาไม่มีแรง'], base: 3, urgent: true,
+      baseReason: 'แขนหรือขาอ่อนแรงทันทีทันใด อาจเป็นสัญญาณของโรคหลอดเลือดสมอง ซึ่งยิ่งรักษาเร็วยิ่งดี',
+      care: ['จดเวลาที่เริ่มมีอาการ (สำคัญต่อการรักษา)', 'โทร 1669 ทันที', 'อย่าให้กินอาหาร น้ำ หรือยาทางปาก หากกลืนลำบาก'],
+      warn: ['หน้าเบี้ยว ปากเบี้ยว', 'พูดไม่ชัด', 'ตามัว เดินเซ'],
+      seek: ['ควรได้รับการประเมินทันที โทร 1669'] }
+  ];
+
+  const FLAGS = [
+    { id: 'face_speech', label: 'หน้าเบี้ยว ปากเบี้ยว หรือพูดไม่ชัดทันที', kw: ['ปากเบี้ยว', 'หน้าเบี้ยว', 'พูดไม่ชัด', 'ลิ้นแข็ง', 'พูดลำบาก'], level: 3,
+      reason: 'หน้าเบี้ยว ปากเบี้ยว หรือพูดไม่ชัดทันที เป็นสัญญาณอันตรายทางสมอง' },
+    { id: 'unconscious', label: 'หมดสติ ชัก หรือซึมมาก ปลุกไม่ค่อยตื่น', kw: ['หมดสติ', 'ชัก', 'ไม่รู้สึกตัว', 'ปลุกไม่ตื่น'], level: 3,
+      reason: 'หมดสติ ชัก หรือซึมมาก ต้องได้รับการช่วยเหลือทันที' },
+    { id: 'cyanosis', label: 'ริมฝีปากหรือปลายเล็บเขียวคล้ำ', kw: ['ปากเขียว', 'เล็บเขียว', 'ตัวเขียว'], level: 3,
+      reason: 'ริมฝีปากหรือเล็บเขียวคล้ำ อาจหมายถึงร่างกายได้รับออกซิเจนไม่พอ' },
+    { id: 'swelling', label: 'หน้า ปาก ลิ้น หรือคอบวมขึ้นเฉียบพลัน', kw: ['ปากบวม', 'หน้าบวม', 'ลิ้นบวม', 'คอบวม'], level: 3,
+      reason: 'หน้า ปาก หรือคอบวมเฉียบพลัน อาจเป็นการแพ้รุนแรง' },
+    { id: 'bleeding', label: 'อาเจียนหรือไอเป็นเลือด ถ่ายเป็นเลือดหรือถ่ายดำ', kw: ['อาเจียนเป็นเลือด', 'อ้วกเป็นเลือด', 'ไอเป็นเลือด', 'ถ่ายเป็นเลือด', 'ถ่ายดำ'], level: 3,
+      reason: 'มีเลือดออกจากทางเดินอาหารหรือทางเดินหายใจ' },
+    { id: 'thunderclap', label: 'ปวดศีรษะรุนแรงเฉียบพลัน แบบที่ไม่เคยเป็นมาก่อน', kw: ['ปวดหัวรุนแรงมาก', 'ปวดหัวรุนแรงเฉียบพลัน', 'ปวดหัวมากที่สุด'], level: 3,
+      reason: 'ปวดศีรษะรุนแรงเฉียบพลันแบบไม่เคยเป็น เป็นสัญญาณอันตราย' },
+    { id: 'stiff_neck', label: 'คอแข็ง ก้มคอไม่ได้', kw: ['คอแข็ง', 'ก้มคอไม่ได้'], level: 2,
+      reason: 'มีอาการคอแข็ง ควรได้รับการตรวจโดยเร็ว' },
+    { id: 'high_fever', label: 'ไข้สูงตั้งแต่ 39 องศาเซลเซียสขึ้นไป', kw: ['ไข้สูง', 'ไข้ขึ้นสูง'], level: 2,
+      reason: 'มีไข้สูง ควรได้รับการตรวจโดยเร็ว' },
+    { id: 'self_harm', label: 'มีความคิดอยากทำร้ายตัวเอง หรือไม่อยากมีชีวิตอยู่', kw: ['อยากตาย', 'ฆ่าตัวตาย', 'ทำร้ายตัวเอง', 'ไม่อยากมีชีวิต'], level: 3,
+      reason: 'มีความคิดอยากทำร้ายตัวเอง ควรได้รับความช่วยเหลือทันที คุณไม่ได้อยู่คนเดียว' }
+  ];
+
+  const CONTEXT = [
+    { id: 'age60', label: 'อายุ 60 ปีขึ้นไป' },
+    { id: 'child5', label: 'ผู้ป่วยเป็นเด็กอายุต่ำกว่า 5 ปี' },
+    { id: 'pregnant', label: 'กำลังตั้งครรภ์' },
+    { id: 'chronic', label: 'มีโรคประจำตัว เช่น เบาหวาน ความดันโลหิตสูง โรคหัวใจ โรคปอด โรคไต' },
+    { id: 'severe', label: 'อาการรุนแรงมาก หรือแย่ลงเรื่อยๆ' }
+  ];
+
+  const LEVELS = [
+    { cls: 'lv-0', icon: '🙂', title: 'ดูแลตนเองเบื้องต้นได้',
+      desc: 'จากข้อมูลที่เลือก ยังไม่พบสัญญาณอันตราย ดูแลตนเองตามคำแนะนำด้านล่างและสังเกตอาการ หากไม่ดีขึ้นใน 2–3 วัน หรือแย่ลง ควรปรึกษาแพทย์หรือเภสัชกร' },
+    { cls: 'lv-1', icon: '🧑‍⚕️', title: 'ควรปรึกษาเภสัชกรหรือแพทย์',
+      desc: 'ควรปรึกษาเภสัชกรหรือแพทย์ใกล้บ้านเพื่อประเมินอาการเพิ่มเติม และสังเกตสัญญาณอันตรายอย่างใกล้ชิด' },
+    { cls: 'lv-2', icon: '🏥', title: 'ควรพบแพทย์โดยเร็ว',
+      desc: 'ควรไปพบแพทย์ภายในวันนี้หรือภายใน 24 ชั่วโมง หากอาการแย่ลงหรือมีสัญญาณอันตราย ให้โทร 1669' },
+    { cls: 'lv-3', icon: '🚨', title: 'อาจเป็นภาวะฉุกเฉิน โทร 1669 ทันที',
+      desc: 'อย่ารอดูอาการ โทรสายด่วนการแพทย์ฉุกเฉิน 1669 (ฟรี ตลอด 24 ชั่วโมง) หรือไปห้องฉุกเฉินที่ใกล้ที่สุด ไม่ควรขับรถไปเองหากมีอาการ' }
+  ];
+
+  // Keyword search with a simple negation check ("ไม่มีไข้" should not match ไข้).
+  function matchText(text) {
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    const found = { symptoms: new Set(), flags: new Set(), words: [] };
+    if (!t) return found;
+    const scan = (list, set) => list.forEach(item => {
+      for (const k of item.kw) {
+        let idx = t.indexOf(k);
+        let hit = false;
+        while (idx !== -1) {
+          const before = t.slice(Math.max(0, idx - 6), idx);
+          if (!before.includes('ไม่')) { hit = true; break; }
+          idx = t.indexOf(k, idx + 1);
+        }
+        if (hit) { set.add(item.id); found.words.push(k); break; }
+      }
+    });
+    scan(SYMPTOMS, found.symptoms);
+    scan(FLAGS, found.flags);
+    return found;
+  }
+
+  function evaluate(input) {
+    const sym = input.symptoms, flags = input.flags, ctx = input.ctx, dur = input.duration || '';
+    const has = id => sym.has(id), flag = id => flags.has(id), c = id => ctx.has(id);
+    let level = 0;
+    const reasons = [], notes = [];
+    const bump = (l, why) => {
+      if (l > level) level = l;
+      if (why && !reasons.some(r => r.why === why)) reasons.push({ l, why });
+    };
+    SYMPTOMS.forEach(s => { if (has(s.id) && s.base > 0) bump(s.base, s.baseReason); });
+    FLAGS.forEach(f => { if (flag(f.id)) bump(f.level, f.reason); });
+
+    // Combination rules
+    if (flag('stiff_neck') && (has('fever') || flag('high_fever'))) bump(3, 'มีไข้ร่วมกับคอแข็ง ต้องได้รับการตรวจทันที');
+    if (has('dizziness') && (has('weakness') || flag('face_speech'))) bump(3, 'เวียนศีรษะร่วมกับอาการทางสมอง (อ่อนแรง/พูดไม่ชัด)');
+    if (has('rash') && flag('swelling')) bump(3, 'ผื่นร่วมกับอาการบวมที่หน้าหรือคอ อาจเป็นการแพ้รุนแรง');
+    if (has('fever') && has('abdominal')) bump(2, 'มีไข้ร่วมกับปวดท้อง ควรได้รับการตรวจเพื่อหาสาเหตุ');
+    if (has('fever') && has('rash')) bump(2, 'มีไข้ร่วมกับผื่น ควรพบแพทย์เพื่อตรวจหาสาเหตุ');
+    if (has('abdominal') && has('nausea')) bump(1, 'ปวดท้องร่วมกับคลื่นไส้อาเจียน ควรสังเกตอาการใกล้ชิด');
+    if (has('nausea') && has('diarrhea')) {
+      bump(1, 'อาเจียนร่วมกับท้องเสีย เสี่ยงต่อการขาดน้ำ');
+      notes.push('จิบน้ำหรือสารละลายเกลือแร่ทีละน้อยแต่บ่อยครั้ง และสังเกตอาการขาดน้ำ เช่น ปัสสาวะน้อย ปากแห้ง ซึม');
+    }
+    if (has('fever') && !has('breathing') && (has('cough') || has('sorethroat') || has('runnynose'))) {
+      notes.push('ถ้ามีไข้ร่วมกับอาการทางเดินหายใจ ควรสวมหน้ากากอนามัยและแยกของใช้ส่วนตัว เพื่อลดการแพร่เชื้อสู่ผู้อื่น');
+    }
+
+    // Context rules
+    const any = sym.size > 0;
+    const vulnerable = c('age60') || c('child5') || c('pregnant') || c('chronic');
+    if (vulnerable && any) bump(1, 'อยู่ในกลุ่มที่ควรระมัดระวังเป็นพิเศษ (ผู้สูงอายุ เด็กเล็ก ผู้ตั้งครรภ์ หรือผู้มีโรคประจำตัว)');
+    if (vulnerable && (has('fever') || has('diarrhea') || has('nausea'))) bump(2, 'กลุ่มที่ควรระมัดระวังซึ่งมีไข้ อาเจียน หรือท้องเสีย อาจมีอาการแย่ลงได้เร็ว');
+    if (c('pregnant') && has('abdominal')) bump(2, 'ปวดท้องขณะตั้งครรภ์ ควรพบแพทย์โดยเร็ว');
+    if (c('severe') && (any || flags.size)) bump(2, 'อาการรุนแรงมากหรือแย่ลงเรื่อยๆ');
+
+    // Duration rules
+    if (dur === 'gt3' && any) bump(has('fever') ? 2 : 1, has('fever') ? 'มีไข้นานเกิน 3 วัน' : 'มีอาการนานเกิน 3 วัน');
+    if (dur === 'gt14' && any) bump(2, 'มีอาการต่อเนื่องนานกว่า 2 สัปดาห์ ควรได้รับการตรวจหาสาเหตุ');
+    if (sym.size >= 4) bump(1, 'มีหลายอาการร่วมกัน');
+
+    if (!reasons.length) reasons.push({ l: 0, why: 'ไม่พบสัญญาณอันตรายจากข้อมูลที่เลือก' });
+    reasons.sort((a, b) => b.l - a.l);
+    return { level, reasons, notes, mental: flag('self_harm'), symptoms: SYMPTOMS.filter(s => has(s.id)) };
+  }
+
+  return { SYMPTOMS, FLAGS, CONTEXT, LEVELS, matchText, evaluate };
+})();
+/* SYMPTOM-CORE-END */
+
+(function initSymptomUI() {
+  const { SYMPTOMS, FLAGS, CONTEXT, LEVELS } = SymptomCore;
+  const form = $('#sym-form'), resultBox = $('#sym-result'), resultBody = $('#sym-result-body');
+  const chip = (name, item, extra = '') => `<label class="chip${item.urgent ? ' is-urgent' : ''}">
+      <input type="checkbox" name="${name}" value="${item.id}">
+      ${item.icon ? `<span class="c-ico" aria-hidden="true">${item.icon}</span>` : ''}
+      <span>${esc(item.label)}${item.urgent ? '<span class="c-tag">อาจฉุกเฉิน</span>' : ''}${extra}</span></label>`;
+  $('#sym-grid').innerHTML = SYMPTOMS.map(s => chip('symptom', s)).join('');
+  $('#flag-grid').innerHTML = FLAGS.map(f => chip('flag', f)).join('');
+  $('#ctx-grid').innerHTML = CONTEXT.map(c => chip('ctx', c)).join('');
+
+  const checked = name => new Set($$(`input[name="${name}"]:checked`, form).map(i => i.value));
+  const matchNote = $('#match-note'), errEl = $('#sym-error');
+  let lastSpeech = '';
+
+  function applyText() {
+    const text = $('#sym-text').value;
+    if (!text.trim()) { matchNote.textContent = ''; return null; }
+    const m = SymptomCore.matchText(text);
+    m.symptoms.forEach(id => { const i = form.querySelector(`input[name="symptom"][value="${id}"]`); if (i) i.checked = true; });
+    m.flags.forEach(id => { const i = form.querySelector(`input[name="flag"][value="${id}"]`); if (i) i.checked = true; });
+    matchNote.textContent = m.words.length
+      ? `พบคำว่า: ${m.words.join(', ')} — เลือกให้แล้ว โปรดตรวจสอบด้านล่าง`
+      : 'ไม่พบอาการที่ระบบรู้จักจากข้อความ กรุณาเลือกจากรายการด้านล่าง';
+    return m;
+  }
+  $('#btn-match').addEventListener('click', applyText);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    applyText();
+    const input = { symptoms: checked('symptom'), flags: checked('flag'), ctx: checked('ctx'), duration: $('#sym-duration').value };
+    if (!input.symptoms.size && !input.flags.size) {
+      errEl.textContent = 'กรุณาเลือกอาการอย่างน้อย 1 ข้อ หรือพิมพ์อาการในช่องด้านบน';
+      form.querySelector('input[name="symptom"]').focus();
+      return;
+    }
+    errEl.textContent = '';
+    render(SymptomCore.evaluate(input));
+  });
+  form.addEventListener('reset', () => {
+    errEl.textContent = '';
+    matchNote.textContent = '';
+    resultBox.hidden = true;
+    Mascot.setBase('happy');
+    Speech.stop();
+  });
+
+  const list = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
+  function render(r) {
+    const L = LEVELS[r.level];
+    const sos = r.level === 3 ? `<div class="btn-row"><a class="btn btn-lg btn-sos-light" href="tel:1669"><span aria-hidden="true">📞</span> โทร 1669</a></div>` : '';
+    const mental = r.mental ? `<div class="callout callout-info" style="margin-top:1rem"><span class="ico" aria-hidden="true">💚</span><div>
+        <p><strong>คุณไม่ได้อยู่คนเดียว</strong> การพูดคุยกับผู้เชี่ยวชาญช่วยได้ โทร<strong>สายด่วนสุขภาพจิต <a href="tel:1323">1323</a></strong> ได้ตลอด 24 ชั่วโมง
+        หากกำลังอยู่ในอันตรายทันที โทร <a href="tel:1669">1669</a> และอยู่กับคนที่ไว้ใจได้</p></div></div>` : '';
+    const waiting = r.level === 3 ? `<div class="card" style="margin-top:1rem"><h4>ระหว่างรอความช่วยเหลือ</h4>${list([
+        'อยู่ในท่าที่สบาย นั่งหรือนอนพัก ไม่ออกแรง', 'อย่าอยู่คนเดียว บอกคนใกล้ตัว', 'จดเวลาที่เริ่มมีอาการ',
+        'ถ้าซึมหรือกลืนลำบาก อย่าให้กินอาหาร น้ำ หรือยาทางปาก', 'เตรียมรายการยาที่ใช้ประจำและบัตรประจำตัว'])}</div>` : '';
+    const symCards = r.symptoms.map(s => `<article class="sym-card">
+        <h4><span aria-hidden="true">${s.icon}</span> ${esc(s.label)}</h4>
+        <h5 class="h-care">ดูแลตนเองเบื้องต้น</h5>${list(s.care)}
+        <h5 class="h-warn">สัญญาณอันตราย (ถ้ามี ให้ไปโรงพยาบาลหรือโทร 1669)</h5>${list(s.warn)}
+        <h5 class="h-seek">ควรพบแพทย์เมื่อ</h5>${list(s.seek)}
+      </article>`).join('');
+    const notes = r.notes.length ? `<div class="callout callout-info" style="margin-top:1rem"><span class="ico" aria-hidden="true">💡</span><div>${list(r.notes)}</div></div>` : '';
+
+    resultBody.innerHTML = `
+      <div class="level-banner ${L.cls}" ${r.level === 3 ? 'role="alert"' : ''}>
+        <span class="lv-ico" aria-hidden="true">${L.icon}</span>
+        <div><h3>${L.title}</h3><p>${L.desc}</p>${sos}</div>
+      </div>
+      ${mental}
+      <div class="reasons"><h4>ทำไมน้องสุขใจแนะนำแบบนี้</h4>${list(r.reasons.map(x => x.why))}</div>
+      ${waiting}${notes}
+      ${symCards ? `<div class="sym-results">${symCards}</div>` : ''}`;
+    resultBox.hidden = false;
+    Mascot.setBase(r.level >= 2 ? 'concern' : 'happy');
+    if (r.level === 3) Mascot.express('surprised', 900);
+    else if (r.level === 0) Mascot.express('excited', 2000);
+
+    // Speech version: numbers spelled digit by digit so "1669" is read correctly.
+    const sp = s => s.replace(/1669/g, 'หนึ่ง หก หก เก้า').replace(/1323/g, 'หนึ่ง สาม สอง สาม');
+    let speech = `ผลการประเมินเบื้องต้น ${L.title} ${L.desc}\n`;
+    if (r.mental) speech += 'คุณไม่ได้อยู่คนเดียว โทรสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมง\n';
+    speech += 'เหตุผล ' + r.reasons.map(x => x.why).join(' ') + '\n';
+    r.symptoms.forEach(s => { speech += `อาการ${s.label} ดูแลตนเองโดย ${s.care.join(' ')} สัญญาณอันตรายที่ต้องระวัง ${s.warn.join(' ')}\n`; });
+    speech += 'ข้อมูลนี้เป็นคำแนะนำทั่วไป ไม่ใช่การวินิจฉัยโรค ค่ะ';
+    lastSpeech = sp(speech);
+
+    const title = $('#sym-result-title');
+    title.focus({ preventScroll: true });
+    resultBox.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }
+  $('#btn-read-sym').addEventListener('click', () => { if (lastSpeech) Speech.speak(lastSpeech); });
+  $('#btn-sym-again').addEventListener('click', () => { form.reset(); });
+})();
+
+/* ================= Chat with น้องสุขใจ (rule-based, offline) ================= */
+/* CHAT-CORE-START */
+const ChatBrain = (() => {
+  const TIPS = [
+    'ดื่มน้ำสะอาดให้เพียงพอระหว่างวัน จิบบ่อยๆ ไม่ต้องรอให้กระหายนะคะ',
+    'ลุกขึ้นยืดเส้นยืดสายทุก 1 ชั่วโมง ถ้านั่งนานๆ ค่ะ',
+    'นอนหลับให้เพียงพอ ร่างกายจะได้ซ่อมแซมตัวเองค่ะ',
+    'กินผักผลไม้ให้หลากสี ลดหวาน มัน เค็ม ค่ะ',
+    'ไปตามนัดแพทย์ และกินยาตามที่แพทย์สั่งนะคะ',
+    'เดินเล่นเบาๆ ตอนเช้า ได้ทั้งแดดอ่อนๆ และอารมณ์ดีค่ะ'
+  ];
+  const has = (t, words) => words.some(w => t.includes(w));
+  const go = (label, target) => ({ label, go: target });
+  const tel = (label, number) => ({ label, href: 'tel:' + number, sos: number === '1669' });
+  const INTENTS = [
+    // Order matters: Thai has no spaces, so short words hide inside longer ones
+    // (e.g. "บาย" inside "สบายดี"); keep specific intents above generic ones.
+    { words: ['สวัสดี', 'หวัดดี', 'ดีจ้า', 'hello', 'ทักทาย'], r: () => ({ mood: 'excited', pose: 'wave',
+      text: 'สวัสดีค่ะ! หนูน้องสุขใจ กระรอกน้อยผู้ช่วยดูแลสุขภาพ วันนี้ให้หนูช่วยอะไรดีคะ' }) },
+    { words: ['ชื่ออะไร', 'เป็นใคร', 'คือใคร', 'ตัวอะไร', 'กระรอก'], r: () => ({ mood: 'happy', pose: 'wave',
+      text: 'หนูชื่อน้องสุขใจค่ะ เป็นกระรอกน้อยที่ชอบเก็บลูกโอ๊ก และชอบช่วยทุกคนดูแลสุขภาพ หนูช่วยวัดชีพจรด้วยกล้อง เช็กอาการเบื้องต้น และบอกวิธีขอความช่วยเหลือฉุกเฉินได้ค่ะ' }) },
+    { words: ['ขอบคุณ', 'ขอบใจ', 'thank'], r: () => ({ mood: 'excited', text: 'ยินดีค่ะ! ดูแลตัวเองด้วยนะคะ หนูอยู่ตรงนี้เสมอ' }) },
+    { words: ['ชีพจร', 'หัวใจเต้น', 'วัดหัวใจ', 'pulse', 'bpm', 'ppg'], r: () => ({ mood: 'happy',
+      text: 'วัดชีพจรง่ายๆ ค่ะ นั่งพักก่อน แล้ววางปลายนิ้วปิดกล้องหลังและไฟแฟลชให้มิด กดเบาๆ อยู่นิ่งๆ ประมาณ 25 วินาที ค่าที่ได้เป็นค่าประมาณ ไม่ใช่เครื่องมือแพทย์นะคะ',
+      actions: [go('ไปวัดชีพจร', '#pulse'), { label: 'ดูโหมดสาธิต', demo: true }] }) },
+    { words: ['ฉุกเฉิน', '1669', 'ช่วยด้วย', 'รถพยาบาล'], r: () => ({ mood: 'concern', urgent: true,
+      text: 'ถ้าฉุกเฉิน โทร 1669 ได้ฟรีตลอด 24 ชั่วโมงค่ะ บอกอาการ สถานที่ และเบอร์ติดต่อกลับ แล้วอย่าวางสายก่อนเจ้าหน้าที่บอกนะคะ',
+      actions: [tel('โทร 1669', '1669'), go('ดูข้อมูลฉุกเฉิน', '#guidance')] }) },
+    { words: ['เครียด', 'เศร้า', 'กังวล', 'ท้อ', 'เหงา', 'นอนไม่หลับ', 'ร้องไห้', 'หมดกำลังใจ'], r: () => ({ mood: 'concern',
+      text: 'หนูเป็นห่วงนะคะ ลองหายใจเข้าช้าๆ ลึกๆ สักครู่ แล้วพูดคุยกับคนที่ไว้ใจ ถ้าอยากคุยกับผู้เชี่ยวชาญ โทรสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมงค่ะ',
+      actions: [tel('โทร 1323', '1323')] }) },
+    { words: ['อาการ', 'ไม่สบาย', 'ป่วย', 'เช็ก', 'เช็ค', 'ตรวจ'], r: () => ({ mood: 'curious',
+      text: 'เล่าอาการให้หนูฟังได้เลยค่ะ เช่น “ปวดหัว มีไข้” หรือไปเลือกอาการเองที่หน้าเช็กอาการก็ได้นะคะ',
+      actions: [go('ไปเช็กอาการ', '#symptoms')] }) },
+    { words: ['สบายดี', 'สดชื่น', 'ดีขึ้นแล้ว', 'แข็งแรง'], r: () => ({ mood: 'excited', text: 'ดีใจด้วยค่ะ! ดูแลตัวเองแบบนี้ต่อไปนะคะ' }) },
+    { words: ['บ๊ายบาย', 'บายบาย', 'ลาก่อน', 'ไปก่อนนะ', 'bye'], r: () => ({ mood: 'happy', pose: 'wave',
+      text: 'บ๊ายบายค่ะ ถ้าไม่สบายหรือฉุกเฉิน โทร 1669 ได้เสมอนะคะ' }) },
+    { words: ['เป็นโรค', 'โรคอะไร', 'วินิจฉัย'], r: () => ({ mood: 'curious',
+      text: 'หนูวินิจฉัยโรคไม่ได้ค่ะ ให้ได้แค่คำแนะนำทั่วไป ถ้ากังวลควรไปพบแพทย์นะคะ หรือเล่าอาการให้หนูฟัง หนูจะช่วยดูว่าควรไปหาหมอเร็วแค่ไหนค่ะ' }) },
+    { test: t => /(^|[^อ])ยา(?!บาล)/.test(t) || t.includes('รักษา'), r: () => ({ mood: 'curious',
+      text: 'หนูแนะนำยาไม่ได้ค่ะ เพราะยาแต่ละชนิดเหมาะกับแต่ละคนไม่เหมือนกัน ปรึกษาเภสัชกรหรือแพทย์ดีที่สุดนะคะ ถ้ามียาที่แพทย์สั่งไว้ ให้ใช้ตามที่แพทย์แนะนำค่ะ' }) },
+    { words: ['ข้อมูล', 'ส่วนตัว', 'ปลอดภัย', 'ส่งไป', 'บันทึก'], r: () => ({ mood: 'happy',
+      text: 'ไม่ต้องห่วงค่ะ ทุกอย่างทำงานในเครื่องของคุณ หนูไม่ส่งข้อความ อาการ หรือภาพจากกล้องออกไปไหน และปิดหน้าแล้วก็ลบหายค่ะ' }) },
+    { words: ['ตัวเล็ก', 'ตัวหนังสือ', 'ตัวอักษร', 'มองไม่เห็น', 'อ่านไม่ชัด'], r: () => ({ mood: 'happy',
+      text: 'กดปุ่มด้านล่างเพื่อขยายตัวอักษรได้เลยค่ะ หรือกดปุ่ม ก+ ด้านบนก็ได้นะคะ', actions: [{ label: 'ขยายตัวอักษร', size: true }] }) },
+    { words: ['ใช้ยังไง', 'วิธีใช้', 'ทำอะไรได้', 'ช่วยอะไร'], r: () => ({ mood: 'happy',
+      text: 'หนูช่วยได้ 3 อย่างค่ะ วัดชีพจรด้วยกล้อง เช็กอาการเบื้องต้น และบอกวิธีขอความช่วยเหลือฉุกเฉิน เลือกได้เลยนะคะ',
+      actions: [go('วัดชีพจร', '#pulse'), go('เช็กอาการ', '#symptoms'), go('ฉุกเฉิน', '#guidance')] }) },
+    { words: ['เคล็ดลับ', 'สุขภาพดี', 'ดูแลตัวเอง', 'แนะนำหน่อย'], r: n => ({ mood: 'excited', text: 'เคล็ดลับวันนี้ค่ะ: ' + TIPS[n % TIPS.length] }) },
+    { words: ['น่ารัก', 'เก่ง', 'เต้น', 'เล่น', 'ลูกโอ๊ก'], r: () => ({ mood: 'excited', text: 'เย้! ขอบคุณค่ะ หนูดีใจจนต้องกระโดดเลย' }) }
+  ];
+
+  // n varies tips between calls; pass a counter from the UI.
+  function reply(raw, n = 0) {
+    const t = String(raw || '').trim().toLowerCase();
+    if (!t) return { mood: 'curious', text: 'พิมพ์อะไรมาคุยกับหนูก็ได้นะคะ' };
+
+    // 1) Safety first: crisis and emergency phrases win over everything else.
+    const m = SymptomCore.matchText(t);
+    if (m.flags.has('self_harm')) {
+      return { mood: 'concern', urgent: true,
+        text: 'หนูเป็นห่วงคุณมากนะคะ คุณไม่ได้อยู่คนเดียว โทรคุยกับสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมง ถ้ากำลังอยู่ในอันตรายตอนนี้ โทร 1669 และอยู่กับคนที่ไว้ใจได้นะคะ',
+        actions: [tel('โทร 1323', '1323'), tel('โทร 1669', '1669')] };
+    }
+    const syms = SymptomCore.SYMPTOMS.filter(s => m.symptoms.has(s.id));
+    const flags = SymptomCore.FLAGS.filter(f => m.flags.has(f.id));
+    const urgent = syms.filter(s => s.base === 3).map(s => s.label).concat(flags.filter(f => f.level === 3).map(f => f.label));
+    if (urgent.length) {
+      return { mood: 'concern', surprise: true, urgent: true,
+        text: `อาการ “${urgent.join(', ')}” อาจเป็นภาวะฉุกเฉินค่ะ อย่ารอดูอาการ โทร 1669 ทันที หรือไปห้องฉุกเฉินที่ใกล้ที่สุดนะคะ`,
+        actions: [tel('โทร 1669', '1669'), { label: 'ดูคำแนะนำระหว่างรอ', check: raw }] };
+    }
+    // 2) Other recognised symptoms: one self-care hint, then offer the full rule-based check.
+    if (syms.length || flags.length) {
+      const names = syms.map(s => s.label).concat(flags.map(f => f.label));
+      const hint = syms.length ? ` เบื้องต้น: ${syms[0].care[0]}` : '';
+      return { mood: 'curious',
+        text: `หนูเจออาการ “${names.join(', ')}” ค่ะ${hint} ให้หนูช่วยประเมินต่อไหมคะ จะได้รู้สัญญาณอันตรายและว่าควรพบแพทย์เมื่อไร`,
+        actions: [{ label: 'ประเมินอาการนี้', check: raw }] };
+    }
+    // 3) Small talk and how-to intents.
+    for (const it of INTENTS) {
+      if (it.test ? it.test(t) : has(t, it.words)) return it.r(n);
+    }
+    return { mood: 'curious',
+      text: 'หืม หนูยังไม่เข้าใจข้อความนี้ค่ะ ลองพิมพ์อาการ เช่น “ปวดหัว” หรือเลือกจากปุ่มด้านล่างนะคะ ถ้าฉุกเฉินโทร 1669 ทันที' };
+  }
+  const greeting = () => ({ mood: 'excited', pose: 'wave',
+    text: 'สวัสดีค่ะ! หนูน้องสุขใจ พิมพ์คุยกับหนู หรือกดปุ่มด้านล่างได้เลยนะคะ หนูช่วยเรื่องวัดชีพจร เช็กอาการเบื้องต้น และข้อมูลฉุกเฉินค่ะ' });
+  return { reply, greeting };
+})();
+/* CHAT-CORE-END */
+
+(function initChat() {
+  const chat = $('#chat'), log = $('#chat-log'), form = $('#chat-form'), input = $('#chat-text');
+  const fab = $('#chat-fab'), voiceBtn = $('#chat-voice'), stage = $('#chat-mascot');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let voiceOn = true, greeted = false, counter = 0, queue = Promise.resolve();
+
+  const QUICK = [['❤️ วัดชีพจร', 'วัดชีพจรยังไง'], ['📋 เช็กอาการ', 'ไม่สบาย อยากเช็กอาการ'], ['🚑 ฉุกเฉิน', 'ฉุกเฉิน ต้องทำยังไง'],
+    ['💡 เคล็ดลับสุขภาพ', 'ขอเคล็ดลับสุขภาพ'], ['🔒 ข้อมูลปลอดภัยไหม', 'ข้อมูลปลอดภัยไหม'], ['🐿️ น้องสุขใจคือใคร', 'น้องสุขใจเป็นใคร']];
+  $('#chat-quick').innerHTML = QUICK.map(([label, say]) => `<button type="button" data-say="${esc(say)}">${esc(label)}</button>`).join('');
+
+  function updateVoiceBtn() {
+    const ok = Speech.available();
+    voiceBtn.setAttribute('aria-pressed', String(voiceOn && ok));
+    voiceBtn.textContent = !ok ? '🔇' : voiceOn ? '🔊 เสียง' : '🔈 ปิดเสียง';
+    voiceBtn.setAttribute('aria-label', !ok ? 'อุปกรณ์นี้ไม่มีเสียงภาษาไทย' : voiceOn ? 'เสียงพูด: เปิดอยู่ กดเพื่อปิด' : 'เสียงพูด: ปิดอยู่ กดเพื่อเปิด');
+  }
+  voiceBtn.addEventListener('click', () => {
+    if (!Speech.available()) {
+      toast('อุปกรณ์นี้ไม่มีเสียงภาษาไทย น้องสุขใจจะขยับปากและแสดงข้อความแทน ติดตั้งเสียงภาษาไทยได้ในการตั้งค่าเครื่อง', 'warn', 7000);
+      return;
+    }
+    voiceOn = !voiceOn;
+    if (!voiceOn) Speech.stop();
+    updateVoiceBtn();
+  });
+  setTimeout(updateVoiceBtn, 1600);
+  updateVoiceBtn();
+
+  function goTo(target) {
+    if (window.innerWidth < 1000) close(false);
+    const sec = $(target);
+    if (!sec) return;
+    sec.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' });
+    sec.focus({ preventScroll: true });
+  }
+  function runCheck(text) {
+    const f = $('#sym-form');
+    f.reset();
+    $('#sym-text').value = text;
+    close(false);
+    f.requestSubmit();
+  }
+
+  function addMsg(who, text, opts = {}) {
+    const li = document.createElement('li');
+    li.className = `msg ${who}${opts.urgent ? ' is-urgent' : ''}`;
+    const body = document.createElement('div');
+    body.textContent = text;
+    li.appendChild(body);
+    if (opts.actions && opts.actions.length) {
+      const row = document.createElement('div');
+      row.className = 'btn-row';
+      opts.actions.forEach(a => {
+        let b;
+        if (a.href) {
+          b = document.createElement('a');
+          b.href = a.href;
+          b.className = 'btn' + (a.sos ? ' btn-sos' : '');
+        } else {
+          b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'btn btn-ghost';
+          b.addEventListener('click', () => {
+            if (a.go) goTo(a.go);
+            else if (a.check != null) runCheck(a.check);
+            else if (a.demo) { goTo('#pulse'); $('#ppg-demo').click(); }
+            else if (a.size) $('#btn-size').click();
+          });
+        }
+        b.textContent = a.label;
+        row.appendChild(b);
+      });
+      li.appendChild(row);
+    }
+    log.appendChild(li);
+    log.scrollTop = log.scrollHeight;
+    return li;
+  }
+
+  function botSay(r) {
+    queue = queue.then(() => new Promise(done => {
+      const typing = document.createElement('li');
+      typing.className = 'msg bot typing';
+      typing.setAttribute('aria-label', 'น้องสุขใจกำลังพิมพ์');
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      log.appendChild(typing);
+      log.scrollTop = log.scrollHeight;
+      Mascot.express('curious', 900);
+      setTimeout(() => {
+        typing.remove();
+        addMsg('bot', r.text, r);
+        Mascot.setBase(r.mood === 'concern' ? 'concern' : 'happy');
+        if (r.surprise) Mascot.express('surprised', 900);
+        else if (r.mood !== 'concern' && r.mood !== 'happy') Mascot.express(r.mood, 2600);
+        else Mascot.express(r.mood, 50);
+        if (r.pose) Mascot.pose(r.pose, 2800);
+        updateVoiceBtn();
+        const spoke = voiceOn && Speech.available() && Speech.speak(speakable(r.text), { quiet: true });
+        if (!spoke) Mascot.talkFor(Math.min(4500, r.text.length * 50));
+        setTimeout(updateVoiceBtn, 1200); // reflect a synthesis failure on this device
+        done();
+      }, reduce.matches ? 150 : 650);
+    }));
+  }
+  function userSay(text) {
+    const t = text.trim();
+    if (!t) return;
+    addMsg('user', t);
+    botSay(ChatBrain.reply(t, counter++));
+  }
+
+  function open() {
+    chat.hidden = false;
+    fab.hidden = true;
+    fab.setAttribute('aria-expanded', 'true');
+    Mascot.walkIn(stage);
+    if (!greeted) { greeted = true; botSay(ChatBrain.greeting()); }
+    if (matchMedia('(pointer: fine)').matches) input.focus();
+    else $('#chat-title').focus();
+  }
+  function close(returnFocus = true) {
+    if (chat.hidden) return;
+    chat.hidden = true;
+    fab.hidden = false;
+    fab.setAttribute('aria-expanded', 'false');
+    Speech.stop();
+    if (returnFocus) fab.focus();
+  }
+  $('#chat-title').tabIndex = -1;
+  $$('[data-open-chat]').forEach(b => b.addEventListener('click', open));
+  $('#chat-close').addEventListener('click', () => close());
+  $('#chat-quick').addEventListener('click', e => { const b = e.target.closest('[data-say]'); if (b) userSay(b.dataset.say); });
+  form.addEventListener('submit', e => { e.preventDefault(); userSay(input.value); input.value = ''; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !chat.hidden) close(); });
+})();
+
+// Expose pure cores for console testing (no data leaves the page).
+window.Sookjai = { PPGCore, SymptomCore, ChatBrain };
+})();
+</script>
+</body>
+</html>
