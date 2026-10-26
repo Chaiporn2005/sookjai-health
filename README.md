@@ -2,6 +2,8 @@
 
 Sookjai Health is a single-page Thai web app for basic health guidance, designed for older adults. Its mascot is **น้องสุขใจ**, a chipmunk drawn from `Character_Design.jpg`. The app has five parts: a camera pulse estimate (PPG), a rule-based symptom checker, a chat with the animated mascot, Thai text-to-speech, and emergency information (1669).
 
+**Live demo:** https://chaiporn2005.github.io/sookjai-health/ (open it on a phone to use the camera pulse measurement)
+
 > **Prototype, not a medical device.** No part of this app has been clinically validated. Pulse values are estimates. Symptom guidance is general information, not a diagnosis, and has not yet been reviewed by a clinician.
 
 ## Files
